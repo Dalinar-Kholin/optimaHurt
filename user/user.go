@@ -1,11 +1,13 @@
 package user
 
 import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"optimaHurt/hurtownie"
 )
 
 type User struct {
+	Id     primitive.ObjectID
 	Client *http.Client
 	Hurts  []hurtownie.IHurt
 	Creds  []UserCreds
@@ -21,12 +23,13 @@ func (u *User) TakeHurtCreds(name hurtownie.HurtName) UserCreds {
 }
 
 type DataBaseUserObject struct {
-	Email          string      `bson:"email" json:"email"`
-	Username       string      `bson:"username" json:"username"`
-	Password       string      `bson:"password" json:"password"`
-	CompanyData    CompanyData `bson:"companyData" json:"companyData"`
-	AvailableHurts int         `bson:"availableHurts" json:"availableHurts"`
-	Creds          []UserCreds `bson:"creds" json:"creds"`
+	Id             primitive.ObjectID `bson:"_id" json:"_id"`
+	Email          string             `bson:"email" json:"email"`
+	Username       string             `bson:"username" json:"username"`
+	Password       string             `bson:"password" json:"password"`
+	CompanyData    CompanyData        `bson:"companyData" json:"companyData"`
+	AvailableHurts int                `bson:"availableHurts" json:"availableHurts"`
+	Creds          []UserCreds        `bson:"creds" json:"creds"`
 }
 
 type UserCreds struct {

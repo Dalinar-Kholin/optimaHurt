@@ -3,7 +3,11 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {hurtNames, hurtNamesIterable} from "../../../interfaces.ts";
 import HurtComp from "./hurtComp.tsx";
 
-export default function HurtSetting() {
+interface IHurtSettings{
+    fn : (username: string, pass : string, name : hurtNames) => void
+}
+
+export default function HurtSetting({fn} : IHurtSettings) {
     const availableHurtGetResult = localStorage.getItem("availableHurts")
     const availableHurt = availableHurtGetResult!==null ? +availableHurtGetResult : 0 // nie tylkać bo kompilator spadnie z rowerka
     return (
@@ -19,12 +23,11 @@ export default function HurtSetting() {
                         id="panel1-header"
                         sx={{backgroundColor:(availableHurt&name) > 0 ? "#81c784" : "" }}
                     >
-                        {(availableHurt&name)> 0}
-                        {hurtNames[name]}
+                        {hurtNames[name] + ((availableHurt&name)>0 ? " - obecne dane są poprawne" : "")}
                     </AccordionSummary>
                     <AccordionDetails>
                         <HurtComp fn={(username, pass, name) => {
-                            alert(username + pass + name)
+                            fn(username, pass, name)
                         }} name={name}
                         />
                     </AccordionDetails>

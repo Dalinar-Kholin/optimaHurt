@@ -24,6 +24,7 @@ func connectToDB() *mongo.Client {
 		panic(err)
 	}
 	constAndVars.DbConnect = client.Database(constAndVars.DbName)
+	constAndVars.DbClient = client
 	// Send a ping to confirm a successful connection
 	if err := client.Database("admin").RunCommand(constAndVars.ContextBackground, bson.D{{"ping", 1}}).Err(); err != nil {
 		panic(err)
@@ -89,15 +90,18 @@ func main() {
 			fmt.Printf("deleted cookie %v\n", cookie.Value)
 		})
 
-		api.GET("/addUser", account.AddUser)
-
-		api.GET("/takePrice", middleware.CheckToken, middleware.CheckTokenCurrency, prices.TakePrice)
-
 		api.POST("/takePrices", middleware.CheckToken, middleware.CheckTokenCurrency, prices.TakeMultiple) // get nei może mieć body, więc robimy post
 
 		api.POST("/makeOrder", middleware.CheckToken, middleware.CheckTokenCurrency, order.MakeOrder)
 
 		api.POST("/login", accountEnd.Login)
+
+		api.PATCH("/changeUserData", middleware.CheckToken, account.ChangeUserData)
+
+		api.GET("/addUser", account.AddUser)
+
+		api.GET("/takePrice", middleware.CheckToken, middleware.CheckTokenCurrency, prices.TakePrice)
+
 	}
 
 	//r.Run(":8080")
@@ -105,3 +109,5 @@ func main() {
 	//r.RunTLS("0.0.0.0:"+"443", "./cert.crt", "./key.key")
 	return
 }
+
+// raz na dzień będziemy aktualizować całe dane dotyczące liczby zapytań

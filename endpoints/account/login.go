@@ -109,6 +109,7 @@ func (a *AccountEndpoint) Login(c *gin.Context) {
 	}
 	fmt.Printf("dataBaseResponse := %v\n", dataBaseResponse)
 	userInstance, loggedHurts, loginLog := MakeNewUser(dataBaseResponse)
+	userInstance.Id = dataBaseResponse.Id
 	if loggedHurts == 0 {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "cant logged to selected Hurts"})
 		return

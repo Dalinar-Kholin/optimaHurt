@@ -39,6 +39,7 @@ export default function HurtComp({name, fn} : IHurtComp){
                                     if (response.status!=200){
                                         response.json().then(data => {
                                             setError(data.error)
+                                            console.log("nice");
                                             throw new Error("caught")
                                         })
                                     }
@@ -47,8 +48,19 @@ export default function HurtComp({name, fn} : IHurtComp){
                                     fn(username, password, name)
                                     return
                                 }).catch(err =>{
-                                    if (err.message!= "caught"){
-                                        setError("network problem")
+                                    try {
+                                        const jsonStart = err.message.indexOf('{');
+                                        if (jsonStart === -1) {
+                                            throw new Error('Nie znaleziono poprawnego JSON-a w odpowiedzi.');
+                                        }
+                                        // Wyciągamy część JSON-a z odpowiedzi
+                                        const jsonString = err.message.substring(jsonStart);
+                                        // Parsowanie JSON-a
+                                        const parsedResponse = JSON.parse(jsonString);
+
+                                        setError(parsedResponse.error); // Wydrukuje: "bad Credentials"
+                                    } catch (error) {
+                                        setError("network error")
                                     }
                                 })
                             }

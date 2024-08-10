@@ -24,7 +24,6 @@ function CheckCookie() {
 
 
 function App() {
-
     return (
         <div>
             <ThemeProvider theme={darkTheme}>

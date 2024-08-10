@@ -18,7 +18,7 @@ go.work.sum
 vendor/
 
 # Go modules
-
+server
 # Logs
 logs
 *.log

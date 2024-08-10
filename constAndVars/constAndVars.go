@@ -15,6 +15,7 @@ var (
 	Users             map[string]user.User = make(map[string]user.User) // mapuje id na usera -- zakładam że userów nie będzie jakoś strasznie dużo
 	ContextBackground context.Context      = context.TODO()
 	DbConnect         *mongo.Database
+	DbClient          *mongo.Client
 )
 
 func ExportedFunction() {
