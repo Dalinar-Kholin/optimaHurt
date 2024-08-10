@@ -223,7 +223,6 @@ func (s *Sot) SearchMany(list hurtownie.WishList, client *http.Client) ([]hurtow
 		result[i] = x
 		i++
 	}
-	fmt.Printf("result := %v\n", result)
 	return result, nil
 }
 

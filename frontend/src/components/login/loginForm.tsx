@@ -59,7 +59,7 @@ export default function LoginForm(){
                 }).then(data => {
 
                     localStorage.setItem("accessToken", data.token)
-                    localStorage.setItem("availableHurts", "" + data.loggedHurts)
+                    localStorage.setItem("availableHurts", "" + data.availableHurts)
 
                     setIsProperData(true)
                     setUsername("")

@@ -59,6 +59,8 @@ func main() {
 	// Dodanie trasy API
 	api := r.Group("/api")
 	{
+		api.POST("/checkCredentials", accountEnd.CheckCredentials)
+
 		api.POST("/checkCookie", func(c *gin.Context) {
 			Response := func(c *gin.Context, response bool, status int) {
 				c.JSON(status, gin.H{
@@ -79,21 +81,22 @@ func main() {
 			}
 			Response(c, true, http.StatusOK) // ciasteczko jest prawidłowe
 		})
+
 		api.POST("/exit", func(c *gin.Context) {
 			cookie, _ := c.Request.Cookie("accessToken")
 
 			delete(constAndVars.Users, cookie.Value)
 			fmt.Printf("deleted cookie %v\n", cookie.Value)
 		})
+
 		api.GET("/addUser", account.AddUser)
+
 		api.GET("/takePrice", middleware.CheckToken, middleware.CheckTokenCurrency, prices.TakePrice)
+
 		api.POST("/takePrices", middleware.CheckToken, middleware.CheckTokenCurrency, prices.TakeMultiple) // get nei może mieć body, więc robimy post
+
 		api.POST("/makeOrder", middleware.CheckToken, middleware.CheckTokenCurrency, order.MakeOrder)
-		api.GET("/ping", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "pong",
-			})
-		})
+
 		api.POST("/login", accountEnd.Login)
 	}
 

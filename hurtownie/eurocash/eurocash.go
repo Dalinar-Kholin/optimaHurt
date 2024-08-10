@@ -75,7 +75,6 @@ func (e *EurocashObject) SearchMany(list hurtownie.WishList, client *http.Client
 		result[i] = x
 		i++
 	}
-	fmt.Printf("result := %v\n", result)
 	return result, nil
 }
 
@@ -97,7 +96,6 @@ func (e *EurocashObject) TakeToken(login, password string, client *http.Client) 
 	}
 	accessToken := takeTokeRequest(client, code, veryfyer)
 	e.Token = accessToken
-	fmt.Printf("accessToken := %v\n", accessToken)
 	return true
 }
 
@@ -129,7 +127,6 @@ func (e *EurocashObject) SearchProduct(Ean string, client *http.Client) (interfa
 		fmt.Println("Błąd przy tworzeniu żądania:", err)
 		return nil, errors.New("Błąd przy tworzeniu żądania")
 	}
-	fmt.Printf("req := %v\n", req)
 	makeRequest(req)
 	req.Header.Set("Authorization", "Bearer "+e.Token)
 	req.Header.Set("Content-Length", strconv.Itoa(len(jsonData)))

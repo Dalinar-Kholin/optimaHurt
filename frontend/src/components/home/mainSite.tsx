@@ -26,7 +26,6 @@ import fetchWithAuth from "../../typeScriptFunc/fetchWithAuth.ts";
 export default function MainSite() {
     // region zmienne
     const [Ean, setEan] = useState<string>("")
-    let availableHurt = localStorage.getItem("availableHurt") ? parseInt(localStorage.getItem("availableHurt") || "0") : 15
 
     const [componentHashTable, setComponentHashTable] = useState<Map<hurtNames, ReactNode>>(new Map<hurtNames, ReactNode>())
 
@@ -109,24 +108,6 @@ export default function MainSite() {
         setComponentHashTable(newComponentHashTable)
     }
 
-
-    useEffect(() => { // ładowanie mapy komponentów
-        const newHashTable = new Map<hurtNames, ReactNode>();
-
-        for (let i = 1; i <= availableHurt; i <<= 1) {
-            if ((availableHurt & i) !== 0) {
-                newHashTable.set(i, (
-                    <HurtResultForm
-                        name={hurtNames[i]}
-                        priceForPack={-1}
-                        princeForOne={-1}
-                        productsInPack={-1}
-                    />
-                ));
-            }
-        }
-        setComponentHashTable(newHashTable);
-    }, []) // tworzenie nowej hashMapy aby nie świeciło pustkami
 
     useEffect(() => {
         if (prodToSearch.length === 0) {
@@ -281,7 +262,6 @@ export default function MainSite() {
                                 HurtName: item.item.hurtName
                             }
                             })}),
-                        credentials: "include",
                         headers: {
                             "Content-Type": "application/json",
                         }

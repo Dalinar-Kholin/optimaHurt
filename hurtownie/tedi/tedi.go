@@ -74,7 +74,6 @@ func (t *Tedi) RefreshToken(client *http.Client) bool {
 		return false
 	}
 	t.Token = sotToken
-	fmt.Printf("token := %v", t.Token)
 	return true
 } // do naprawy, nie działa
 
@@ -170,7 +169,6 @@ func (t *Tedi) SearchMany(list hurtownie.WishList, client *http.Client) ([]hurto
 		result[i] = x
 		i++
 	}
-	fmt.Printf("result := %v\n", result)
 	return result, nil
 }
 
@@ -244,9 +242,6 @@ func (t *Tedi) AddToCart(list hurtownie.WishList, client *http.Client) bool {
 		return false
 	}
 	defer resp.Body.Close()
-
-	// Handle the response
-	fmt.Println("Status:", resp.Status)
 	return true
 }
 

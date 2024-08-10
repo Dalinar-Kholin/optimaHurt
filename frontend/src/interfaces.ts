@@ -12,6 +12,7 @@ export enum hurtNames{
     "tedi"= 8,
 }
 
+export const hurtNamesIterable: hurtNames[] = [hurtNames.none, hurtNames.eurocash, hurtNames.special, hurtNames.sot, hurtNames.tedi]
 
 export interface IAllResult {
     ean: string,

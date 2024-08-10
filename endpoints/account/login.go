@@ -82,7 +82,7 @@ type ChannelResponse struct {
 	Success bool               `json:"success"`
 }
 
-func (a AccountEndpoint) Login(c *gin.Context) {
+func (a *AccountEndpoint) Login(c *gin.Context) {
 	connection := DbConnect.Collection(UserCollection)
 
 	request, err := io.ReadAll(c.Request.Body)

@@ -5,6 +5,7 @@ import AppBarCustomed from "./components/appBar/appBar.tsx";
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 import useCheckCookie from "./customHook/useCheckCookie.ts";
 import Tariff from "./components/tariff/Tariff.tsx";
+import SettingPage from "./components/settings/settings.tsx";
 
 
 const darkTheme = createTheme({
@@ -19,6 +20,9 @@ function CheckCookie() {
     return <></>
 }
 
+
+
+
 function App() {
 
     return (
@@ -32,7 +36,7 @@ function App() {
                         <Route path={"/login"} element={<LoginForm/>}/>
                         <Route path={"/main"} element={<MainSite/>}/>
                         <Route path={"/cennik"} element={<Tariff/>}/>
-                        <Route path={"/ustawienia"} element={<MainSite/>}/>
+                        <Route path={"/ustawienia"} element={<SettingPage/>}/>
                         <Route path={"/*"} element={<Navigate to={"/main"}/>}/>
                     </Routes>
                 </Router>
