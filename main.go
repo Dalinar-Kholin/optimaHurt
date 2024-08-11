@@ -96,6 +96,8 @@ func main() {
 
 		api.POST("/login", accountEnd.Login)
 
+		api.POST("/payment/stripe", account.MakePayment)
+
 		api.PATCH("/changeUserData", middleware.CheckToken, account.ChangeUserData)
 
 		api.GET("/addUser", account.AddUser)
