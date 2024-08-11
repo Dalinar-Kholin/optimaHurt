@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/stripe/stripe-go/v79"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -10,6 +11,7 @@ import (
 	"optimaHurt/constAndVars"
 	"optimaHurt/endpoints/account"
 	"optimaHurt/endpoints/orders"
+	"optimaHurt/endpoints/payments"
 	"optimaHurt/endpoints/takePrices"
 	"optimaHurt/middleware"
 	"os"
@@ -40,7 +42,7 @@ func main() {
 	defer func() {
 		connection.Disconnect(constAndVars.ContextBackground)
 	}()
-
+	stripe.Key = os.Getenv("STRIPE_KEY")
 	r := gin.Default()
 	r.Use(middleware.AddHeaders)
 	accountEnd := account.AccountEndpoint{}
@@ -96,7 +98,8 @@ func main() {
 
 		api.POST("/login", accountEnd.Login)
 
-		api.POST("/payment/stripe", account.MakePayment)
+		api.POST("/payment/stripe", payments.MakePayment)
+		api.POST("/payment/stripeConfirm", payments.ConfirmPayment)
 
 		api.PATCH("/changeUserData", middleware.CheckToken, account.ChangeUserData)
 

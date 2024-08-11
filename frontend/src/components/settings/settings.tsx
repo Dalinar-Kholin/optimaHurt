@@ -8,6 +8,10 @@ import {Alert, Button, Tab} from "@mui/material";
 import {TabList, TabPanel} from "@mui/lab";
 import {hurtNames} from "../../interfaces.ts";
 import fetchWithAuth from "../../typeScriptFunc/fetchWithAuth.ts";
+// @ts-ignore
+import Payments from "./payment/payments.jsx";
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 
 
 export interface INewDataHurt{
@@ -24,6 +28,7 @@ export interface INewCompanyData{
 
 }
 
+const stripePromise = loadStripe('TWÓJ_PUBLICZNY_KLUCZ_STRIPE');
 
 export default function SettingPage(){
     const [value, setValue] = useState('2');
@@ -47,6 +52,7 @@ export default function SettingPage(){
                             <Tab label="ustawienia konta" value="1" />
                             <Tab label="ustawienia hurtowni" value="2" />
                             <Tab label="dane firmy" value="3" />
+                            <Tab label="płatności" value="4"/>
                         </TabList>
                     </Box>
                     <TabPanel value="1">
@@ -66,6 +72,12 @@ export default function SettingPage(){
                     <TabPanel value="3">
                         <CompanyData/>
                     </TabPanel>
+                    <TabPanel value="4">
+                        <Elements stripe={stripePromise}>
+                            <Payments />
+                        </Elements>
+                    </TabPanel>
+
                 </TabContext>
                 {newHurtData.length!==0 || newAccountData!=="" || _newCompanyData.length!==0 ? <Button variant={"contained"} color={"success"} onClick={()=> {
                     const dataToSend= {
