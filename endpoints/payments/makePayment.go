@@ -37,7 +37,7 @@ func MakePayment(c *gin.Context) {
 		SuccessURL: stripe.String("https://optimahurt-hayvfpjoza-lm.a.run.app/login"),
 		CancelURL:  stripe.String("https://optimahurt-hayvfpjoza-lm.a.run.app/failed"),
 		Metadata: map[string]string{
-			"userId": Users[auth].Id.String(), // Przekazanie identyfikatora użytkownika
+			"userId": Users[auth].Id.Hex(), // Przekazanie identyfikatora użytkownika
 		},
 		SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
 			TrialPeriodDays: stripe.Int64(14), // 14-dniowy okres próbny

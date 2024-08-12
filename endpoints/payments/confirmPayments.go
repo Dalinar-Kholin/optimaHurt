@@ -9,7 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	. "optimaHurt/constAndVars"
 	"optimaHurt/user"
-	"strings"
 	"time"
 )
 
@@ -73,10 +72,8 @@ func ConfirmPayment(c *gin.Context) {
 		}
 		fmt.Printf("session := %v\n", session)
 		idString := session.Metadata["userId"]
-		cleanedString := strings.TrimPrefix(idString, "ObjectID(\"")
-		cleanedString = strings.TrimSuffix(cleanedString, "\")")
-		fmt.Printf("cleaned string :=%v\n", cleanedString)
-		id, err := primitive.ObjectIDFromHex(cleanedString)
+		fmt.Printf("cleaned string :=%v\n", idString)
+		id, err := primitive.ObjectIDFromHex(idString)
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err,
