@@ -18,7 +18,7 @@ func ConfirmPayment(c *gin.Context) {
 		c.Status(400)
 		return
 	}
-	fmt.Printf("%v", event)
+	fmt.Printf("event body := %v\n", event)
 
 	switch event.Type {
 	case "payment_intent.succeeded":
@@ -30,9 +30,11 @@ func ConfirmPayment(c *gin.Context) {
 			})
 			return
 		}
+		fmt.Printf("payment intend \n%v\n", paymentIntent)
 		userMail := paymentIntent.ReceiptEmail
 		conn := DbConnect.Collection(UserCollection)
 		var userInDb user.DataBaseUserObject
+		fmt.Printf("\n%v\n", userInDb)
 		err = conn.FindOne(ContextBackground, bson.M{"email": userMail}).Decode(&userInDb)
 		if err != nil {
 			c.Status(400)

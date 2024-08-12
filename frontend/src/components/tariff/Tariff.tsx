@@ -13,6 +13,7 @@ export default function Tariff(){
                 <li>możliwość pojedyńczego skanowania</li>
                 <li>możliwość dodawania do koszyka hurtowni jednym przyciskiem</li>
                 <li>skanowanie całych list</li>
+                <li>lokalna dolnośląska firma</li>
             </ul>
         </div>
     )

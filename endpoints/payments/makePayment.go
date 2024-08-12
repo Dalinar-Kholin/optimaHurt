@@ -52,9 +52,6 @@ func MakePayment(c *gin.Context) {
 		Metadata: map[string]string{
 			"paymentToken": shieldedToken, // Przekazanie identyfikatora użytkownika
 		},
-		SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
-			TrialPeriodDays: stripe.Int64(30), // 14-dniowy okres próbny
-		},
 	}
 
 	s, err := session.New(params)
