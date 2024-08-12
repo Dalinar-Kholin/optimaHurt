@@ -47,5 +47,4 @@ func CheckHurtTokenCurrency(c *gin.Context) {
 		}(&wg, hurt)
 	}
 	wg.Wait()
-	c.Next()
 }

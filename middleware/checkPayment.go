@@ -15,8 +15,6 @@ func CheckPayment(c *gin.Context) {
 		c.JSON(401, gin.H{
 			"error": "make Payment",
 		})
-		return
+		c.Abort()
 	}
-
-	c.Next()
 }

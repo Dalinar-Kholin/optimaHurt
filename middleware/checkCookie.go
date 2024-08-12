@@ -13,14 +13,13 @@ func CheckToken(c *gin.Context) {
 		c.JSON(400, gin.H{
 			"error": "where Token?",
 		})
-		return
+		c.Abort()
 	}
 	var ok bool
 	if _, ok = constAndVars.Users[token]; !ok {
 		c.JSON(400, gin.H{
 			"error": "where logowanie?",
 		})
-		return
+		c.Abort()
 	}
-	c.Next()
 } // globalna mapa mapująca TOKEN na usera

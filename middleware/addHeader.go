@@ -11,7 +11,6 @@ func AddHeaders(c *gin.Context) {
 	c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Session-Id")
 	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 
-	c.Next()
 	return
 	c.Writer.Header().Set("Cache-Control", "no-store")
 	c.Writer.Header().Set("Date", time.Now().String())
@@ -24,5 +23,4 @@ func AddHeaders(c *gin.Context) {
 		c.AbortWithStatus(204)
 		return
 	}
-	c.Next()
 }
