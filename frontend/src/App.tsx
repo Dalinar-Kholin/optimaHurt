@@ -7,6 +7,8 @@ import useCheckCookie from "./customHook/useCheckCookie.ts";
 import Tariff from "./components/tariff/Tariff.tsx";
 import SettingPage from "./components/settings/settings.tsx";
 import {useEffect, useState} from "react";
+import FailedLoginPage from "./components/failedLoginPage/failedLoginPage.tsx";
+import SignIn from "./components/SignIn.tsx";
 
 
 const darkTheme = createTheme({
@@ -30,7 +32,7 @@ function App() {
     const location = useLocation();
 
     useEffect(() => {
-        if (location.pathname === "/login") {
+        if (location.pathname=="/login" || location.pathname=="/signIn") {
             setShowAppBar(false);
         } else {
             setShowAppBar(true);
@@ -50,6 +52,8 @@ function App() {
                         <Route path={"/cennik"} element={<Tariff/>}/>
                         <Route path={"/ustawienia"} element={<SettingPage/>}/>
                         <Route path={"/*"} element={<Navigate to={"/main"}/>}/>
+                        <Route path={"/failed"} element={<FailedLoginPage/>}/>
+                        <Route path={"/signIn"} element={<SignIn/>}/>
                     </Routes>
             </ThemeProvider>
         </div>

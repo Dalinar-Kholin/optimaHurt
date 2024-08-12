@@ -1,59 +1,69 @@
 package payments
 
 import (
-	"encoding/json"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stripe/stripe-go/v79"
-	"github.com/stripe/stripe-go/v79/paymentintent"
-	"log"
+	"github.com/stripe/stripe-go/v79/checkout/session"
+	"golang.org/x/crypto/sha3"
+	"net/http"
+	. "optimaHurt/constAndVars"
 )
-
-type item struct {
-	id     string
-	Amount int64
-}
-
-func calculateOrderAmount(items []item) int64 {
-	// Calculate the order total on the server to prevent
-	// people from directly manipulating the amount on the client
-	var total int64 = 0
-	for _, item := range items {
-		total += item.Amount
-	}
-	return total + 10000
-}
 
 func MakePayment(c *gin.Context) {
 
-	var req struct {
-		Items []item `json:"items"`
-	}
+	var amount int64 = 20000 // Na potrzeby przykładu, kwota w centach (50.00 USD)
 
-	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
-		log.Printf("json.NewDecoder.Decode: %v", err)
+	auth := c.Request.Header.Get("Authorization") // jesteśmy za bramką
+
+	Token := make([]byte, 64)
+	if _, err := rand.Read(Token); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "cant generate Token"})
 		return
 	}
+	resToken := sha3.Sum256(Token)
+	shieldedToken := hex.EncodeToString(resToken[:])
+	Users[shieldedToken] = Users[auth] // mapujemy nowy token na tego samego usera, korzystamy z tej samej mapy, zakładam że sha ma na tyle duży zbiór wartości że nie będzie konfliktów
 
-	// Create a PaymentIntent with amount and currency
-	var Cena int64 = 10000
-	params := &stripe.PaymentIntentParams{
-		Amount:   &Cena,
-		Currency: stripe.String(string(stripe.CurrencyPLN)),
-		// In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
-		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
-			Enabled: stripe.Bool(true),
+	// Tworzenie sesji płatności Stripe
+	params := &stripe.CheckoutSessionParams{
+		PaymentMethodTypes: stripe.StringSlice([]string{"card"}),
+		LineItems: []*stripe.CheckoutSessionLineItemParams{
+			{
+				PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
+					Currency: stripe.String("pln"),
+					ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
+						Name:        stripe.String("bazowa subskrypcja"),
+						Description: stripe.String("kinda nice"),
+					},
+					Recurring: &stripe.CheckoutSessionLineItemPriceDataRecurringParams{
+						Interval: stripe.String("month"),
+					},
+					UnitAmount: &amount,
+				},
+				Quantity: stripe.Int64(1),
+			},
+		},
+		Mode:       stripe.String("subscription"),
+		SuccessURL: stripe.String("https://optimahurt-hayvfpjoza-lm.a.run.app/login"),
+		CancelURL:  stripe.String("https://optimahurt-hayvfpjoza-lm.a.run.app/failed"),
+		Metadata: map[string]string{
+			"paymentToken": shieldedToken, // Przekazanie identyfikatora użytkownika
+		},
+		SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
+			TrialPeriodDays: stripe.Int64(30), // 14-dniowy okres próbny
 		},
 	}
 
-	pi, err := paymentintent.New(params)
+	s, err := session.New(params)
 	if err != nil {
-		fmt.Printf("błąd i chuj := %v", err)
+		fmt.Printf("error %v", err)
 		return
 	}
-	log.Printf("pi.New: %v", pi.ClientSecret)
-
+	// Zwrócenie ID sesji płatności
 	c.JSON(200, gin.H{
-		"clientSecret": pi.ClientSecret,
+		"id": s.ID,
 	})
 }

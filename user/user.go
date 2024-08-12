@@ -6,11 +6,40 @@ import (
 	"optimaHurt/hurtownie"
 )
 
+type SubTier int
+
+const (
+	base SubTier = iota
+	premium
+	canceled
+)
+
+type SignInBodyData struct {
+	Email       string `json:"email"`
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	CompanyName string `json:"companyName"`
+	Nip         string `json:"nip"`
+	Street      string `json:"street"`
+	Nr          string `json:"nr"`
+}
+
+type LoginBodyData struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type UserMessage struct {
+	UserId  primitive.ObjectID `bson:"userId"`
+	Message string             `bson:"message"`
+}
+
 type User struct {
-	Id     primitive.ObjectID
-	Client *http.Client
-	Hurts  []hurtownie.IHurt
-	Creds  []UserCreds
+	Id         primitive.ObjectID
+	Client     *http.Client
+	Hurts      []hurtownie.IHurt
+	Creds      []UserCreds
+	ExpiryData primitive.DateTime `bson:"expiryData" bson:"expiryData"`
 }
 
 func (u *User) TakeHurtCreds(name hurtownie.HurtName) UserCreds {
@@ -23,13 +52,15 @@ func (u *User) TakeHurtCreds(name hurtownie.HurtName) UserCreds {
 }
 
 type DataBaseUserObject struct {
-	Id             primitive.ObjectID `bson:"_id" json:"_id"`
-	Email          string             `bson:"email" json:"email"`
-	Username       string             `bson:"username" json:"username"`
-	Password       string             `bson:"password" json:"password"`
-	CompanyData    CompanyData        `bson:"companyData" json:"companyData"`
-	AvailableHurts int                `bson:"availableHurts" json:"availableHurts"`
-	Creds          []UserCreds        `bson:"creds" json:"creds"`
+	Id               primitive.ObjectID `bson:"_id" json:"_id"`
+	Email            string             `bson:"email" json:"email"`
+	Username         string             `bson:"username" json:"username"`
+	Password         string             `bson:"password" json:"password"`
+	CompanyData      CompanyData        `bson:"companyData" json:"companyData"`
+	AvailableHurts   int                `bson:"availableHurts" json:"availableHurts"`
+	Creds            []UserCreds        `bson:"creds" json:"creds"`
+	ExpiryData       primitive.DateTime `bson:"expiryData" bson:"expiryData"`
+	SubscriptionTier SubTier            `bson:"subscriptionTier" json:"subscriptionTier"`
 }
 
 type UserCreds struct {
@@ -40,7 +71,7 @@ type UserCreds struct {
 
 type Adress struct {
 	Street string `bson:"street"  bson:"street"`
-	Nr     int    `bson:"nr" json:"nr"`
+	Nr     string `bson:"nr" json:"nr"`
 }
 
 type CompanyData struct {

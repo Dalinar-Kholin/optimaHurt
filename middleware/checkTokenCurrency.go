@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-func CheckTokenCurrency(c *gin.Context) {
+func CheckHurtTokenCurrency(c *gin.Context) {
 	token := c.Request.Header.Get("Authorization")
 
 	if token == "" {
@@ -19,7 +19,7 @@ func CheckTokenCurrency(c *gin.Context) {
 		return
 	}
 	var ok bool
-	var userInstance user.User
+	var userInstance *user.User
 	if userInstance, ok = constAndVars.Users[token]; !ok {
 		c.JSON(400, gin.H{
 			"error": "where logowanie?",

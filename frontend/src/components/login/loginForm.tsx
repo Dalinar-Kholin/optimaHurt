@@ -3,28 +3,12 @@ import {Alert, AlertTitle, Button, TextField} from "@mui/material";
 import "./login.css"
 import {useNavigate} from "react-router-dom";
 
-function getCookie(name: string) {
-    let cookieArr = document.cookie.split(";");
-
-    for (let i = 0; i < cookieArr.length; i++) {
-        let cookiePair = cookieArr[i].split("=");
-
-        // Usunięcie spacji na początku nazwy ciasteczka
-        let cookieName = cookiePair[0].trim();
-        if (cookieName === name) {
-            return cookiePair[1];
-        }
-    }
-    return null;
-}
 
 export default function LoginForm(){
-    if (getCookie("accessToken") !== null){
-        //return <h1>already logged in</h1>
-    }
 
-    const [username, setUsername] = useState<string>();
-    const [password, setPassword] = useState<string>();
+
+    const [username, setUsername] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
     const [isProperData, setIsProperData] = useState<boolean>(true)
     const [errorMessage, setErrorMessage] = useState<string>("")
 
@@ -99,6 +83,13 @@ export default function LoginForm(){
                 <Button variant="contained" type={"submit"}>
                     Login
                 </Button>
+                <p></p>
+                <Button variant="contained" onClick={()=>{
+                    navigate("/signIn")
+                }}>
+                    SignIn
+                </Button>
+
             </form>
         </>
     )

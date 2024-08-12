@@ -1,11 +1,14 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import fetchWithAuth from "../typeScriptFunc/fetchWithAuth.ts";
-
 const useCheckCookie = () => {
     const navigate = useNavigate();
-
+    const location = useLocation()
     useEffect(() => {
+        if (location.pathname=="/login" || location.pathname=="/signIn"){
+            return
+        }
+
         const checkCookie = async () => {
             fetchWithAuth('/api/checkCookie', {
                 method: 'POST',
@@ -26,9 +29,7 @@ const useCheckCookie = () => {
             })
         };
 
-        checkCookie().then(()=>
-            console.log("logged")
-        );
+        checkCookie().then(()=>{});
     }, [navigate]);
 };
 

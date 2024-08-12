@@ -17,11 +17,6 @@ import (
 	"sync"
 )
 
-type LoginBodyData struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
 func MakeNewUser(dbUser user.DataBaseUserObject) (userInstance *user.User, availableHurts hurtownie.HurtName, resultsLogin []ChannelResponse) {
 	var hurtTab []hurtownie.IHurt
 
@@ -91,7 +86,7 @@ func (a *AccountEndpoint) Login(c *gin.Context) {
 		return
 	}
 	defer c.Request.Body.Close()
-	var reqBody LoginBodyData
+	var reqBody user.LoginBodyData
 	err = json.Unmarshal(request, &reqBody)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "bad json"})
@@ -110,10 +105,7 @@ func (a *AccountEndpoint) Login(c *gin.Context) {
 	fmt.Printf("dataBaseResponse := %v\n", dataBaseResponse)
 	userInstance, loggedHurts, loginLog := MakeNewUser(dataBaseResponse)
 	userInstance.Id = dataBaseResponse.Id
-	if loggedHurts == 0 {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "cant logged to selected Hurts"})
-		return
-	}
+	userInstance.ExpiryData = dataBaseResponse.ExpiryData
 	newToken := make([]byte, 64)
 	if _, err := rand.Read(newToken); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "cant generate token"})
@@ -122,7 +114,7 @@ func (a *AccountEndpoint) Login(c *gin.Context) {
 	resToken := sha3.Sum256(newToken)
 	shieldedToken := hex.EncodeToString(resToken[:])
 	//shieldedToken := base64.StdEncoding.EncodeToString(newToken) // token jest użytkowany tylko podczas sesji, więc nie ma potrzeby przechowywania go w bazie danych
-	Users[shieldedToken] = *userInstance
+	Users[shieldedToken] = userInstance
 	c.JSON(200, gin.H{
 		"result":         loginLog,
 		"token":          shieldedToken,

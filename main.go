@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"optimaHurt/constAndVars"
 	"optimaHurt/endpoints/account"
+	"optimaHurt/endpoints/account/signIn"
 	"optimaHurt/endpoints/orders"
 	"optimaHurt/endpoints/payments"
 	"optimaHurt/endpoints/takePrices"
@@ -92,20 +93,19 @@ func main() {
 			fmt.Printf("deleted cookie %v\n", cookie.Value)
 		})
 
-		api.POST("/takePrices", middleware.CheckToken, middleware.CheckTokenCurrency, prices.TakeMultiple) // get nei może mieć body, więc robimy post
-
-		api.POST("/makeOrder", middleware.CheckToken, middleware.CheckTokenCurrency, order.MakeOrder)
+		api.POST("/takePrices", middleware.CheckToken, middleware.CheckHurtTokenCurrency, middleware.CheckPayment, prices.TakeMultiple) // get nie może mieć body, więc robimy post
+		api.GET("/takePrice", middleware.CheckToken, middleware.CheckHurtTokenCurrency, middleware.CheckPayment, prices.TakePrice)
+		api.POST("/makeOrder", middleware.CheckToken, middleware.CheckHurtTokenCurrency, middleware.CheckPayment, order.MakeOrder)
 
 		api.POST("/login", accountEnd.Login)
+		api.POST("/signIn", signIn.SignIn)
 
 		api.POST("/payment/stripe", payments.MakePayment)
-		api.POST("/payment/stripeConfirm", payments.ConfirmPayment)
+		api.POST("/payment/stripe/webhook/confirm", payments.ConfirmPayment)
 
 		api.PATCH("/changeUserData", middleware.CheckToken, account.ChangeUserData)
 
 		api.GET("/addUser", account.AddUser)
-
-		api.GET("/takePrice", middleware.CheckToken, middleware.CheckTokenCurrency, prices.TakePrice)
 
 	}
 

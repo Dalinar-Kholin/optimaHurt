@@ -23,7 +23,7 @@ func (o *Order) MakeOrder(c *gin.Context) {
 		return
 	}
 	var ok bool
-	var userInstance user.User
+	var userInstance *user.User
 	if userInstance, ok = constAndVars.Users[token]; !ok {
 		c.JSON(400, gin.H{
 			"error": "where logowanie?",
