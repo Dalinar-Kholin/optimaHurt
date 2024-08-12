@@ -37,7 +37,9 @@ func ConfirmPayment(c *gin.Context) {
 		fmt.Printf("\n%v\n", userInDb)
 		err = conn.FindOne(ContextBackground, bson.M{"email": userMail}).Decode(&userInDb)
 		if err != nil {
-			c.Status(400)
+			c.JSON(400, gin.H{
+				"error": err,
+			})
 			return
 		}
 		var newTime time.Time
@@ -49,12 +51,59 @@ func ConfirmPayment(c *gin.Context) {
 		newTime.Add(30 * 24 * time.Hour)
 		userInDb.ExpiryData = primitive.NewDateTimeFromTime(newTime)
 		if err := conn.FindOneAndReplace(ContextBackground, bson.M{"email": userMail}, userInDb).Err(); err != nil {
+			c.JSON(400, gin.H{
+				"error": err,
+			})
 			return
 		}
 		messageConn := DbConnect.Collection(UserMessageCollection)
 		message := user.UserMessage{UserId: userInDb.Id, Message: "płatność się udała"}
 		messageConn.InsertOne(ContextBackground, message)
 		//dodanie wiadomości o udanej płatności
+	case "checkout.session.completed":
+		var session stripe.CheckoutSessionParams
+		err := json.Unmarshal(event.Data.Raw, &session)
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err,
+			})
+		}
+		fmt.Printf("session := %v\n", session)
+		idString := session.Metadata["userId"]
+		id, err := primitive.ObjectIDFromHex(idString)
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err,
+			})
+		}
+		conn := DbConnect.Collection(UserCollection)
+		var userInDb user.DataBaseUserObject
+		fmt.Printf("\n%v\n", userInDb)
+
+		err = conn.FindOne(ContextBackground, bson.M{"_id": id}).Decode(&userInDb)
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err,
+			})
+			return
+		}
+		var newTime time.Time
+		if userInDb.ExpiryData.Time().After(time.Now()) {
+			newTime = userInDb.ExpiryData.Time()
+		} else {
+			newTime = time.Now()
+		}
+		newTime.Add(30 * 24 * time.Hour)
+		userInDb.ExpiryData = primitive.NewDateTimeFromTime(newTime)
+		if err := conn.FindOneAndReplace(ContextBackground, bson.M{"_id": id}, userInDb).Err(); err != nil {
+			c.JSON(400, gin.H{
+				"error": err,
+			})
+			return
+		}
+		messageConn := DbConnect.Collection(UserMessageCollection)
+		message := user.UserMessage{UserId: userInDb.Id, Message: "płatność się udała"}
+		messageConn.InsertOne(ContextBackground, message)
 	}
 
 	c.Status(200)
