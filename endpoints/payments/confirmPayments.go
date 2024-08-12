@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	. "optimaHurt/constAndVars"
 	"optimaHurt/user"
+	"strings"
 	"time"
 )
 
@@ -59,6 +60,7 @@ func ConfirmPayment(c *gin.Context) {
 		messageConn := DbConnect.Collection(UserMessageCollection)
 		message := user.UserMessage{UserId: userInDb.Id, Message: "płatność się udała"}
 		messageConn.InsertOne(ContextBackground, message)
+		return
 		//dodanie wiadomości o udanej płatności
 	case "checkout.session.completed":
 		var session stripe.CheckoutSessionParams
@@ -67,14 +69,19 @@ func ConfirmPayment(c *gin.Context) {
 			c.JSON(400, gin.H{
 				"error": err,
 			})
+			return
 		}
 		fmt.Printf("session := %v\n", session)
 		idString := session.Metadata["userId"]
-		id, err := primitive.ObjectIDFromHex(idString)
+		cleanedString := strings.TrimPrefix(idString, "ObjectID(\"")
+		cleanedString = strings.TrimSuffix(cleanedString, "\")")
+		fmt.Printf("cleaned string :=%v\n", cleanedString)
+		id, err := primitive.ObjectIDFromHex(cleanedString)
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err,
 			})
+			return
 		}
 		conn := DbConnect.Collection(UserCollection)
 		var userInDb user.DataBaseUserObject
@@ -105,6 +112,4 @@ func ConfirmPayment(c *gin.Context) {
 		message := user.UserMessage{UserId: userInDb.Id, Message: "płatność się udała"}
 		messageConn.InsertOne(ContextBackground, message)
 	}
-
-	c.Status(200)
 }
