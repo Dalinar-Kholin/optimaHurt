@@ -35,7 +35,8 @@ func ConfirmPayment(c *gin.Context) {
 		conn := DbConnect.Collection(UserCollection)
 		var userInDb user.DataBaseUserObject
 		fmt.Printf("\n%v\n", userInDb)
-		err = conn.FindOne(ContextBackground, bson.M{"email": userMail}).Decode(&userInDb)
+		_ = userMail
+		err = conn.FindOne(ContextBackground, bson.M{"email": "nicea@gmail.com"}).Decode(&userInDb)
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err,
@@ -50,7 +51,7 @@ func ConfirmPayment(c *gin.Context) {
 		}
 		newTime.Add(30 * 24 * time.Hour)
 		userInDb.ExpiryData = primitive.NewDateTimeFromTime(newTime)
-		if err := conn.FindOneAndReplace(ContextBackground, bson.M{"email": userMail}, userInDb).Err(); err != nil {
+		if err := conn.FindOneAndReplace(ContextBackground, bson.M{"email": "nicea@gmail.com"}, userInDb).Err(); err != nil {
 			c.JSON(400, gin.H{
 				"error": err,
 			})
@@ -82,9 +83,10 @@ func ConfirmPayment(c *gin.Context) {
 		}
 		conn := DbConnect.Collection(UserCollection)
 		var userInDb user.DataBaseUserObject
-		fmt.Printf("\n%v\n", userInDb)
 
 		err = conn.FindOne(ContextBackground, bson.M{"_id": id}).Decode(&userInDb)
+
+		fmt.Printf("\n%v\n", userInDb)
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err,
