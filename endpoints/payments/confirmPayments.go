@@ -99,7 +99,7 @@ func ConfirmPayment(c *gin.Context) {
 		} else {
 			newTime = time.Now()
 		}
-		newTime.Add(30 * 24 * time.Hour)
+		newTime = newTime.Add(14 * 24 * time.Hour)
 		userInDb.ExpiryData = primitive.NewDateTimeFromTime(newTime)
 		if err := conn.FindOneAndReplace(ContextBackground, bson.M{"_id": id}, userInDb).Err(); err != nil {
 			c.JSON(400, gin.H{
