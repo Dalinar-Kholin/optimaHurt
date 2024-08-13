@@ -64,6 +64,10 @@ func SignIn(c *gin.Context) {
 		})
 		return
 	}
+	message := user.UserMessage{UserId: userInDb.Id, Message: "aby odblokować możliwość sprawdzania przejdź do płatności i rozpocznij okres próbny"}
+
+	_, _ = DbConnect.Collection(UserMessageCollection).InsertOne(ContextBackground, message)
+
 	c.JSON(200, gin.H{
 		"result": "user added",
 	})

@@ -1,18 +1,28 @@
-import {Accordion, AccordionDetails, AccordionSummary} from "@mui/material";
+import {Accordion, AccordionDetails, AccordionSummary, Snackbar} from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {hurtNames, hurtNamesIterable} from "../../../interfaces.ts";
 import HurtComp from "./hurtComp.tsx";
+import {useState} from "react";
 
 interface IHurtSettings{
     fn : (username: string, pass : string, name : hurtNames) => void
 }
 
+
 export default function HurtSetting({fn} : IHurtSettings) {
+
     const availableHurtGetResult = localStorage.getItem("availableHurts")
     const availableHurt = availableHurtGetResult!==null ? +availableHurtGetResult : 0 // nie tylkać bo kompilator spadnie z rowerka
+
+    const [state, setState] = useState<boolean>(false);
+    const [message, setMessage] = useState<string>("")
+
+
+
+
     return (
         <div>
-            <p>{availableHurt}</p>
+            <p>Dostępne hurtownie</p>
             {hurtNamesIterable.map(name =>
                 {
 
@@ -27,13 +37,23 @@ export default function HurtSetting({fn} : IHurtSettings) {
                     </AccordionSummary>
                     <AccordionDetails>
                         <HurtComp fn={(username, pass, name) => {
+                            setState(true)
+                            setMessage("hasło od " + hurtNames[name] + " dodano do zapisania")
                             fn(username, pass, name)
+
                         }} name={name}
                         />
                     </AccordionDetails>
                 </Accordion>}
                 )
             }
+            <Snackbar
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                open={state}
+                onClose={()=> setState(false)}
+                message={message}
+            />
+
         </div>
     )
 }

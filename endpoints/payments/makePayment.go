@@ -26,7 +26,7 @@ func MakePayment(c *gin.Context) {
 						Description: stripe.String("kinda nice"),
 					},
 					Recurring: &stripe.CheckoutSessionLineItemPriceDataRecurringParams{
-						Interval: stripe.String("month"),
+						Interval: stripe.String("day"),
 					},
 					UnitAmount: &amount,
 				},
@@ -40,7 +40,7 @@ func MakePayment(c *gin.Context) {
 			"userId": Users[auth].Id.Hex(), // Przekazanie identyfikatora użytkownika
 		},
 		SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
-			TrialPeriodDays: stripe.Int64(14), // 14-dniowy okres próbny
+			TrialPeriodDays: stripe.Int64(1), // 14-dniowy okres próbny
 		},
 	}
 

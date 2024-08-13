@@ -100,6 +100,8 @@ func main() {
 		api.POST("/login", accountEnd.Login)
 		api.POST("/signIn", signIn.SignIn)
 
+		api.GET("/messages", middleware.CheckToken, account.CheckMessages)
+
 		api.POST("/payment/stripe", middleware.CheckToken, payments.MakePayment)
 		api.POST("/payment/stripe/webhook/confirm", payments.ConfirmPayment)
 

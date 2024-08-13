@@ -24,7 +24,7 @@ export default function AppBarCustomed(/*{iconLink}:IAppBarCustomed*/){
     }
 
 
-    const pages : PATH[] = [ "ustawienia", "cennik", "main"]
+    const pages : PATH[] = ["main","payment", "ustawienia", "cennik"]
     return(
         <>
             <AppBar position="sticky" id={"appBarComp"}>

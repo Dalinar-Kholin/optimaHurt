@@ -6,7 +6,7 @@ import {
     CircularProgress,
     List,
     ListItemButton,
-    ListItemText,
+    ListItemText, Snackbar,
     TextField,
     Typography
 } from "@mui/material";
@@ -37,6 +37,8 @@ export default function MainSite() {
 
     const [prodToSearch, setProdToSearch] = useState<IItemToSearch[]>([])
 
+    const [openSnackbar, setOpenSnackbar] = useState<boolean>(false)
+    const [messageFromBackend, setMessageFromBackend] = useState<string>("")
 
     const [optItems, setOptItems] = useState<IItemInstance[]>([])
     const [allResult, setAllResult] = useState<IAllResult[]>([])
@@ -167,6 +169,14 @@ export default function MainSite() {
         // zapisanie ich w optItems
     }, [prodToSearch])
 
+    useEffect(() => {
+        fetchWithAuth("/api/messages").then(response =>{
+            return response.json()
+        }).then(data => {
+            setMessageFromBackend(data.message)
+            setOpenSnackbar(true)
+        })
+    }, []);
 
     return (
         <>
@@ -294,6 +304,17 @@ export default function MainSite() {
             </Box>}
 
             <InputComp setItem={prod => setProdToSearch(prod)} setName={name => setFileName(name)}/>
+
+
+            <Snackbar
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                open={openSnackbar}
+                onClose={()=> {
+                    setOpenSnackbar(false)
+                    setMessageFromBackend("")
+                }}
+                message={messageFromBackend}
+            />
 
         </>
     )

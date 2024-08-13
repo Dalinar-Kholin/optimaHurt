@@ -9,6 +9,7 @@ import SettingPage from "./components/settings/settings.tsx";
 import {useEffect, useState} from "react";
 import FailedLoginPage from "./components/failedLoginPage/failedLoginPage.tsx";
 import SignIn from "./components/SignIn.tsx";
+import PaymentComp from "./components/payment/paymentComp.tsx";
 
 
 const darkTheme = createTheme({
@@ -53,7 +54,8 @@ function App() {
                         <Route path={"/ustawienia"} element={<SettingPage/>}/>
                         <Route path={"/*"} element={<Navigate to={"/main"}/>}/>
                         <Route path={"/failed"} element={<FailedLoginPage/>}/>
-                        <Route path={"/signIn"} element={<SignIn/>}/>
+                        <Route path={"/signIn"} element={<SignIn/>} />
+                        <Route path={"/payment"} element={<PaymentComp/>}/>
                     </Routes>
             </ThemeProvider>
         </div>

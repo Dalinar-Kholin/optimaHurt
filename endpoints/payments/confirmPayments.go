@@ -31,12 +31,13 @@ func ConfirmPayment(c *gin.Context) {
 			return
 		}
 		fmt.Printf("payment intend \n%v\n", paymentIntent)
-		userMail := paymentIntent.ReceiptEmail
+		idString := paymentIntent.Metadata["userId"]
+		fmt.Printf("cleaned string :=%v\n", idString)
+		id, err := primitive.ObjectIDFromHex(idString)
 		conn := DbConnect.Collection(UserCollection)
 		var userInDb user.DataBaseUserObject
 		fmt.Printf("\n%v\n", userInDb)
-		_ = userMail
-		err = conn.FindOne(ContextBackground, bson.M{"email": "nicea@gmail.com"}).Decode(&userInDb)
+		err = conn.FindOne(ContextBackground, bson.M{"_id": id}).Decode(&userInDb)
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err,
@@ -51,9 +52,9 @@ func ConfirmPayment(c *gin.Context) {
 		}
 		newTime.Add(30 * 24 * time.Hour)
 		userInDb.ExpiryData = primitive.NewDateTimeFromTime(newTime)
-		if err := conn.FindOneAndReplace(ContextBackground, bson.M{"email": "nicea@gmail.com"}, userInDb).Err(); err != nil {
+		if err := conn.FindOneAndReplace(ContextBackground, bson.M{"_id": id}, userInDb).Err(); err != nil {
 			c.JSON(400, gin.H{
-				"error": err,
+				"error": err.Error(),
 			})
 			return
 		}
@@ -67,7 +68,7 @@ func ConfirmPayment(c *gin.Context) {
 		err := json.Unmarshal(event.Data.Raw, &session)
 		if err != nil {
 			c.JSON(400, gin.H{
-				"error": err,
+				"error": err.Error(),
 			})
 			return
 		}
@@ -77,7 +78,7 @@ func ConfirmPayment(c *gin.Context) {
 		id, err := primitive.ObjectIDFromHex(idString)
 		if err != nil {
 			c.JSON(400, gin.H{
-				"error": err,
+				"error": err.Error(),
 			})
 			return
 		}
