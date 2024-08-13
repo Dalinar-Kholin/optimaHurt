@@ -7,9 +7,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"gopkg.in/mail.v2"
 	"net/http"
 	"optimaHurt/constAndVars"
 	"optimaHurt/endpoints/account"
+	"optimaHurt/endpoints/account/forgotPassword"
 	"optimaHurt/endpoints/account/signIn"
 	"optimaHurt/endpoints/orders"
 	"optimaHurt/endpoints/payments"
@@ -43,6 +45,11 @@ func main() {
 	defer func() {
 		connection.Disconnect(constAndVars.ContextBackground)
 	}()
+
+	// Konfiguracja SMTP
+	fmt.Printf("email password := %v\n", os.Getenv("EMAIL_PASSWORD"))
+	constAndVars.EmailDialer = mail.NewDialer("smtp.gmail.com", 587, "optimahurtcorp@gmail.com", os.Getenv("EMAIL_PASSWORD"))
+
 	stripe.Key = os.Getenv("STRIPE_KEY")
 	r := gin.Default()
 	r.Use(middleware.AddHeaders)
@@ -96,6 +103,9 @@ func main() {
 		api.POST("/takePrices", middleware.CheckToken, middleware.CheckHurtTokenCurrency, middleware.CheckPayment, prices.TakeMultiple) // get nie może mieć body, więc robimy post
 		api.GET("/takePrice", middleware.CheckToken, middleware.CheckHurtTokenCurrency, middleware.CheckPayment, prices.TakePrice)
 		api.POST("/makeOrder", middleware.CheckToken, middleware.CheckHurtTokenCurrency, middleware.CheckPayment, order.MakeOrder)
+
+		api.GET("/forgotPassword", forgotPassword.ForgotPassword)
+		api.POST("/resetPassword", forgotPassword.ResetPasswordFunc)
 
 		api.POST("/login", accountEnd.Login)
 		api.POST("/signIn", signIn.SignIn)

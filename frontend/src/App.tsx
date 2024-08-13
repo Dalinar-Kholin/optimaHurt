@@ -10,6 +10,9 @@ import {useEffect, useState} from "react";
 import FailedLoginPage from "./components/failedLoginPage/failedLoginPage.tsx";
 import SignIn from "./components/SignIn.tsx";
 import PaymentComp from "./components/payment/paymentComp.tsx";
+import ForgotPassword from "./components/forgotPassword/forgotPassword.tsx";
+import {freeBarAndCookiePath} from "./interfaces.ts";
+import ResetPassword from "./components/forgotPassword/resetPassword.tsx";
 
 
 const darkTheme = createTheme({
@@ -33,7 +36,7 @@ function App() {
     const location = useLocation();
 
     useEffect(() => {
-        if (location.pathname=="/login" || location.pathname=="/signIn") {
+        if (freeBarAndCookiePath.some(i => i === location.pathname)) {
             setShowAppBar(false);
         } else {
             setShowAppBar(true);
@@ -56,6 +59,8 @@ function App() {
                         <Route path={"/failed"} element={<FailedLoginPage/>}/>
                         <Route path={"/signIn"} element={<SignIn/>} />
                         <Route path={"/payment"} element={<PaymentComp/>}/>
+                        <Route path={"/forgotPassword"} element={<ForgotPassword/>}/>
+                        <Route path={"/resetPassword"} element={<ResetPassword/>}/>
                     </Routes>
             </ThemeProvider>
         </div>

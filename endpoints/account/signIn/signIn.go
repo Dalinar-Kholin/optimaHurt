@@ -64,7 +64,7 @@ func SignIn(c *gin.Context) {
 		})
 		return
 	}
-	message := user.UserMessage{UserId: userInDb.Id, Message: "aby odblokować możliwość sprawdzania przejdź do płatności i rozpocznij okres próbny"}
+	message := user.UserMessage{UserId: newUser.Id, Message: "aby odblokować możliwość sprawdzania przejdź do płatności i rozpocznij okres próbny"}
 
 	_, _ = DbConnect.Collection(UserMessageCollection).InsertOne(ContextBackground, message)
 

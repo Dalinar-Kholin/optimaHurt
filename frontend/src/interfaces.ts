@@ -3,6 +3,7 @@ import {IServerMultipleDataResult} from "./components/home/resultGrabbers.ts";
 
 export type PATH= "main" | "cennik" | "ustawienia" | "login" | "payment"
 
+export const freeBarAndCookiePath = ["/login" , "/signIn", "/forgotPassword", "/resetPassword"]
 
 export enum hurtNames{
     "none" = 0,

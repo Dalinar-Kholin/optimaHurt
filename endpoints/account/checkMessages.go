@@ -18,8 +18,8 @@ func CheckMessages(c *gin.Context) {
 	if err := conn.FindOneAndDelete(ContextBackground, bson.M{
 		"userId": userInstance.Id,
 	}).Decode(&message); err != nil {
-		c.JSON(400, gin.H{
-			"error": "nic nie ma",
+		c.JSON(200, gin.H{
+			"message": "",
 		})
 		return
 	}

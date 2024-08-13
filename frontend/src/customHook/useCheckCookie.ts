@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import fetchWithAuth from "../typeScriptFunc/fetchWithAuth.ts";
+import {freeBarAndCookiePath} from "../interfaces.ts";
 const useCheckCookie = () => {
     const navigate = useNavigate();
     const location = useLocation()
     useEffect(() => {
-        if (location.pathname=="/login" || location.pathname=="/signIn"){
+        if (freeBarAndCookiePath.some(i => i === location.pathname)){
             return
         }
 

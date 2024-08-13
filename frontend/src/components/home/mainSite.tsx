@@ -173,10 +173,13 @@ export default function MainSite() {
         fetchWithAuth("/api/messages").then(response =>{
             return response.json()
         }).then(data => {
+            if (data.message==""){
+                return
+            }
             setMessageFromBackend(data.message)
             setOpenSnackbar(true)
         })
-    }, []);
+    }, []) //pobieranie wiadomości
 
     return (
         <>

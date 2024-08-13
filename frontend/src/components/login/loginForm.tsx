@@ -80,6 +80,10 @@ export default function LoginForm(){
                     {errorMessage}
                 </Alert>}
                 <p></p>
+                <Button variant="outlined" onClick={()=> {
+                    navigate("/forgotPassword")
+                }}>zapomniałem hasła</Button>
+                <p></p>
                 <Button variant="contained" type={"submit"}>
                     Login
                 </Button>

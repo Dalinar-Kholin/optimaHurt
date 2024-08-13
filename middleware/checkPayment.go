@@ -8,6 +8,7 @@ import (
 
 func CheckPayment(c *gin.Context) {
 
+	// za wolne, bardzo spowalnia zapytanie, zamiast tego dodać pole podczas logowania
 	token := c.Request.Header.Get("Authorization") // wiem że będzie bo jesteśmy już za innymi bramkami
 	userInstance := Users[token]
 
