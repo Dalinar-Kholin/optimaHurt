@@ -79,12 +79,10 @@ func main() {
 				})
 			}
 			token := c.Request.Header.Get("Authorization")
-			fmt.Printf("token := %v\n", token)
 			if token == "" {
 				Response(c, false, http.StatusUnauthorized)
 				return
 			}
-			fmt.Printf("cookie := %v\nmapa := %v\n", token, constAndVars.Users)
 			_, ok := constAndVars.Users[token]
 			if !ok {
 				Response(c, false, http.StatusUnauthorized)

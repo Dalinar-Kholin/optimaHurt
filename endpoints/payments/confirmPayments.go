@@ -17,7 +17,6 @@ func ConfirmPayment(c *gin.Context) {
 		c.Status(400)
 		return
 	}
-	fmt.Printf("event body := %v\n", event)
 
 	switch event.Type {
 	case "customer.subscription.deleted": // kiedy to się dzieje anulujemy użytkownikowi usługę
@@ -30,6 +29,7 @@ func ConfirmPayment(c *gin.Context) {
 			return
 		}
 		var stripeInfo user.StripeUserInfo
+		fmt.Printf("%v", delInfo)
 		if err := DbConnect.Collection(StripeCollection).FindOneAndDelete(ContextBackground, bson.M{
 			"subscriptionId": delInfo.ID,
 		}).Decode(&stripeInfo); err != nil {
@@ -51,6 +51,7 @@ func ConfirmPayment(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "all is GIT",
 		})
+		return
 	case "checkout.session.completed":
 		var session stripe.CheckoutSessionParams
 		err := json.Unmarshal(event.Data.Raw, &session)
@@ -82,10 +83,10 @@ func ConfirmPayment(c *gin.Context) {
 			UserId:         id,
 			SubscriptionId: subscriptionID,
 		}
-		_, err = DbConnect.Collection(StripeCollection).InsertOne(ContextBackground, info)
-		fmt.Printf("%v", err)
+		_, _ = DbConnect.Collection(StripeCollection).InsertOne(ContextBackground, info)
 		messageConn := DbConnect.Collection(UserMessageCollection)
 		message := user.UserMessage{UserId: id, Message: "płatność się udała"}
 		messageConn.InsertOne(ContextBackground, message)
+		return
 	}
 }
