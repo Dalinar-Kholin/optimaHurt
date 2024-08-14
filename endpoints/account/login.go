@@ -105,7 +105,7 @@ func (a *AccountEndpoint) Login(c *gin.Context) {
 	fmt.Printf("dataBaseResponse := %v\n", dataBaseResponse)
 	userInstance, loggedHurts, loginLog := MakeNewUser(dataBaseResponse)
 	userInstance.Id = dataBaseResponse.Id
-	userInstance.ExpiryData = dataBaseResponse.ExpiryData
+	userInstance.AccountStatus = dataBaseResponse.AccountStatus
 	newToken := make([]byte, 64)
 	if _, err := rand.Read(newToken); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "cant generate token"})
@@ -118,7 +118,9 @@ func (a *AccountEndpoint) Login(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"result":         loginLog,
 		"token":          shieldedToken,
-		"availableHurts": loggedHurts},
+		"availableHurts": loggedHurts,
+		"accountStatus":  dataBaseResponse.AccountStatus,
+	},
 	)
 }
 
