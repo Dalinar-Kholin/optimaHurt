@@ -79,6 +79,13 @@ func ConfirmPayment(c *gin.Context) {
 			})
 			return
 		}
+		subscriptionID := event.Data.Object["subscription"].(string)
+		info := user.StripeUserInfo{
+			UserId:         userInDb.Id,
+			SubscriptionId: subscriptionID,
+		}
+		_, err = DbConnect.Collection(StripeCollection).InsertOne(ContextBackground, info)
+		fmt.Printf("%v", err)
 		messageConn := DbConnect.Collection(UserMessageCollection)
 		message := user.UserMessage{UserId: userInDb.Id, Message: "płatność się udała"}
 		messageConn.InsertOne(ContextBackground, message)

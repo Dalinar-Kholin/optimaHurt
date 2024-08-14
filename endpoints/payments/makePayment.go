@@ -11,8 +11,8 @@ import (
 	"optimaHurt/user"
 )
 
-const renewalSubscription = "prod_Qf7EpJeaA4tl6X"
-const newSubscription = "prod_Qds2qOnyqRvsZx"
+const renewalSubscription = "price_1Pnmzv03bfZgIVzMLcRabUXr"
+const newSubscription = "price_1PmaHx03bfZgIVzMFmnkSgaK"
 
 func MakePayment(c *gin.Context) {
 
@@ -27,6 +27,7 @@ func MakePayment(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"message": "server error",
 		})
+		return
 	}
 
 	customerParams := &stripe.CustomerParams{
@@ -69,13 +70,11 @@ func MakePayment(c *gin.Context) {
 	s, err := session.New(params)
 	if err != nil {
 		fmt.Printf("error %v", err)
+		c.JSON(400, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
-	info := user.StripeUserInfo{
-		UserId:         userInDb.Id,
-		SubscriptionId: s.Subscription.ID,
-	}
-	_, _ = DbConnect.Collection(StripeCollection).InsertOne(ContextBackground, info)
 
 	// Zwrócenie ID sesji płatności
 	c.JSON(200, gin.H{
