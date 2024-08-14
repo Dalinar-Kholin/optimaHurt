@@ -9,7 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	. "optimaHurt/constAndVars"
 	"optimaHurt/user"
-	"time"
 )
 
 func ConfirmPayment(c *gin.Context) {
@@ -21,48 +20,37 @@ func ConfirmPayment(c *gin.Context) {
 	fmt.Printf("event body := %v\n", event)
 
 	switch event.Type {
-	case "payment_intent.succeeded":
-		var paymentIntent stripe.PaymentIntent
-		err := json.Unmarshal(event.Data.Raw, &paymentIntent)
-		if err != nil {
+	case "customer.subscription.deleted": // kiedy to się dzieje anulujemy użytkownikowi usługę
+		var delInfo stripe.Subscription
+
+		if err := json.Unmarshal(event.Data.Raw, &delInfo); err != nil {
 			c.JSON(400, gin.H{
-				"error": "bad body",
+				"message": err.Error(),
 			})
 			return
 		}
-		fmt.Printf("payment intend \n%v\n", paymentIntent)
-		idString := paymentIntent.Metadata["userId"]
-		fmt.Printf("cleaned string :=%v\n", idString)
-		id, err := primitive.ObjectIDFromHex(idString)
-		conn := DbConnect.Collection(UserCollection)
-		var userInDb user.DataBaseUserObject
-		fmt.Printf("\n%v\n", userInDb)
-		err = conn.FindOne(ContextBackground, bson.M{"_id": id}).Decode(&userInDb)
-		if err != nil {
+		var stripeInfo user.StripeUserInfo
+		if err := DbConnect.Collection(StripeCollection).FindOneAndDelete(ContextBackground, bson.M{
+			"subscriptionId": delInfo.ID,
+		}).Decode(&stripeInfo); err != nil {
 			c.JSON(400, gin.H{
-				"error": err,
+				"message": err.Error(),
 			})
 			return
 		}
-		var newTime time.Time
-		if userInDb.ExpiryData.Time().After(time.Now()) {
-			newTime = userInDb.ExpiryData.Time()
-		} else {
-			newTime = time.Now()
-		}
-		newTime.Add(30 * 24 * time.Hour)
-		userInDb.ExpiryData = primitive.NewDateTimeFromTime(newTime)
-		if err := conn.FindOneAndReplace(ContextBackground, bson.M{"_id": id}, userInDb).Err(); err != nil {
-			c.JSON(400, gin.H{
-				"error": err.Error(),
+		if err := DbConnect.
+			Collection(UserCollection).
+			FindOneAndUpdate(ContextBackground,
+				bson.M{"_id": stripeInfo.UserId},
+				bson.M{"$set": bson.M{"accountStatus": user.Inactive}}); err != nil {
+			c.JSON(500, gin.H{
+				"message": err.Err(),
 			})
 			return
 		}
-		messageConn := DbConnect.Collection(UserMessageCollection)
-		message := user.UserMessage{UserId: userInDb.Id, Message: "płatność się udała"}
-		messageConn.InsertOne(ContextBackground, message)
-		return
-		//dodanie wiadomości o udanej płatności
+		c.JSON(200, gin.H{
+			"message": "all is GIT",
+		})
 	case "checkout.session.completed":
 		var session stripe.CheckoutSessionParams
 		err := json.Unmarshal(event.Data.Raw, &session)
@@ -85,24 +73,7 @@ func ConfirmPayment(c *gin.Context) {
 		conn := DbConnect.Collection(UserCollection)
 		var userInDb user.DataBaseUserObject
 
-		err = conn.FindOne(ContextBackground, bson.M{"_id": id}).Decode(&userInDb)
-
-		fmt.Printf("\n%v\n", userInDb)
-		if err != nil {
-			c.JSON(400, gin.H{
-				"error": err,
-			})
-			return
-		}
-		var newTime time.Time
-		if userInDb.ExpiryData.Time().After(time.Now()) {
-			newTime = userInDb.ExpiryData.Time()
-		} else {
-			newTime = time.Now()
-		}
-		newTime = newTime.Add(14 * 24 * time.Hour)
-		userInDb.ExpiryData = primitive.NewDateTimeFromTime(newTime)
-		if err := conn.FindOneAndReplace(ContextBackground, bson.M{"_id": id}, userInDb).Err(); err != nil {
+		if _, err = conn.UpdateOne(ContextBackground, bson.M{"_id": id}, bson.M{"$set": bson.M{"accountStatus": user.Active}}); err != nil {
 			c.JSON(400, gin.H{
 				"error": err,
 			})

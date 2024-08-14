@@ -117,8 +117,6 @@ func main() {
 
 		api.PATCH("/changeUserData", middleware.CheckToken, account.ChangeUserData)
 
-		api.GET("/addUser", account.AddUser)
-
 	}
 
 	//r.Run(":8080")

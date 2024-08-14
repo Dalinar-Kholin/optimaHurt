@@ -51,11 +51,12 @@ func SignIn(c *gin.Context) {
 		CompanyData: user.CompanyData{
 			Name: reqData.CompanyName,
 			Nip:  reqData.Nip,
-			Adress: user.Adress{
+			Address: user.Address{
 				Street: reqData.Street,
 				Nr:     reqData.Nr,
 			},
 		},
+		AccountStatus: user.New,
 	}
 
 	if _, err := connection.InsertOne(ContextBackground, newUser); err != nil {

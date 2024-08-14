@@ -46,7 +46,7 @@ func ForgotPassword(c *gin.Context) {
 
 	shielded := base64.URLEncoding.EncodeToString(token)
 
-	m.SetBody("text/plain; charset=UTF-8", fmt.Sprintf("aby zrestartowac haslo prosze wejsc pod strone http://127.0.0.1/resetPassword?token=%s\n", shielded))
+	m.SetBody("text/plain; charset=UTF-8", fmt.Sprintf("aby zrestartowac haslo prosze wejsc pod strone https://optimahurt-hayvfpjoza-lm.a.run.app/resetPassword?token=%s\n", shielded))
 
 	forgot := ForgotPasswordInDb{UserId: userInDb.Id, Token: shielded}
 

@@ -12,6 +12,7 @@ const (
 	ResetPassword         = "resetPasswordRequest"
 	UserCollection        = "users"
 	UserMessageCollection = "UserMessage"
+	StripeCollection      = "stripeInfo"
 )
 
 var (
