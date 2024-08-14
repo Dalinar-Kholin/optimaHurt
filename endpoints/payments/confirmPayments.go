@@ -71,8 +71,6 @@ func ConfirmPayment(c *gin.Context) {
 			return
 		}
 		conn := DbConnect.Collection(UserCollection)
-		var userInDb user.DataBaseUserObject
-
 		if _, err = conn.UpdateOne(ContextBackground, bson.M{"_id": id}, bson.M{"$set": bson.M{"accountStatus": user.Active}}); err != nil {
 			c.JSON(400, gin.H{
 				"error": err,
@@ -81,13 +79,13 @@ func ConfirmPayment(c *gin.Context) {
 		}
 		subscriptionID := event.Data.Object["subscription"].(string)
 		info := user.StripeUserInfo{
-			UserId:         userInDb.Id,
+			UserId:         id,
 			SubscriptionId: subscriptionID,
 		}
 		_, err = DbConnect.Collection(StripeCollection).InsertOne(ContextBackground, info)
 		fmt.Printf("%v", err)
 		messageConn := DbConnect.Collection(UserMessageCollection)
-		message := user.UserMessage{UserId: userInDb.Id, Message: "płatność się udała"}
+		message := user.UserMessage{UserId: id, Message: "płatność się udała"}
 		messageConn.InsertOne(ContextBackground, message)
 	}
 }
