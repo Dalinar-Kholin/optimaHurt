@@ -2,7 +2,6 @@ package payments
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stripe/stripe-go/v79"
 	"go.mongodb.org/mongo-driver/bson"
@@ -29,7 +28,6 @@ func ConfirmPayment(c *gin.Context) {
 			return
 		}
 		var stripeInfo user.StripeUserInfo
-		fmt.Printf("%v", delInfo)
 		if err := DbConnect.Collection(StripeCollection).FindOneAndDelete(ContextBackground, bson.M{
 			"subscriptionId": delInfo.ID,
 		}).Decode(&stripeInfo); err != nil {
@@ -42,9 +40,9 @@ func ConfirmPayment(c *gin.Context) {
 			Collection(UserCollection).
 			FindOneAndUpdate(ContextBackground,
 				bson.M{"_id": stripeInfo.UserId},
-				bson.M{"$set": bson.M{"accountStatus": user.Inactive}}); err != nil {
+				bson.M{"$set": bson.M{"accountStatus": user.Inactive}}).Err(); err != nil {
 			c.JSON(500, gin.H{
-				"message": err.Err(),
+				"message": err.Error(),
 			})
 			return
 		}
@@ -61,9 +59,7 @@ func ConfirmPayment(c *gin.Context) {
 			})
 			return
 		}
-		fmt.Printf("session := %v\n", session)
 		idString := session.Metadata["userId"]
-		fmt.Printf("cleaned string :=%v\n", idString)
 		id, err := primitive.ObjectIDFromHex(idString)
 		if err != nil {
 			c.JSON(400, gin.H{

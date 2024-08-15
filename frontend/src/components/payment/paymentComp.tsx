@@ -1,48 +1,84 @@
-import {loadStripe} from "@stripe/stripe-js";
-const stripePromise = loadStripe("pk_test_51PmZWL03bfZgIVzMHNjyOTqAdtVPxS1E4neUDh79fSUyUl87UyiSN7TXtzax7y6AiWNGmrzuU7zAdIqdjLDypQ5300KU6kviFq");
-import {Button} from "@mui/material";
+import {Button, Snackbar} from "@mui/material";
+
+import {AccountStatus} from "../../interfaces.ts";
+import Box from "@mui/material/Box";
+import CardComponent from "./CardComponent.tsx";
 import fetchWithAuth from "../../typeScriptFunc/fetchWithAuth.ts";
+import {useState} from "react";
 
 
-const handleClick = async () => {
-    // Pobranie instancji Stripe
-    const stripe = await stripePromise;
-    if (stripe==null){
-        return
+enum prodName{
+    "monthlyDefault" = 0,
+    "yearly" = 1
+}
+
+export default function PaymentComp() {
+    const statusString = localStorage.getItem("accountStatus")
+    const status = statusString === null ? 0 : +statusString
+
+    const [openSnackbar, setOpenSnackbar] = useState<boolean>(false)
+    const [messageFromBackend, setMessageFromBackend] = useState<string>("")
+
+
+    const cancelSub = async  ()=> {
+        fetchWithAuth("/api/payment/stripe/cancel", {
+            method: "GET"
+        }).then(response =>{
+            return response.json()
+        }).then(data =>{
+            setMessageFromBackend(data.message)
+            setOpenSnackbar(true)
+        }).catch(err =>{
+            try {
+                const jsonStart = err.message.indexOf('{');
+                if (jsonStart === -1) {
+                    throw new Error('Nie znaleziono poprawnego JSON-a w odpowiedzi.');
+                }
+                // Wyciągamy część JSON-a z odpowiedzi
+                const jsonString = err.message.substring(jsonStart);
+                // Parsowanie JSON-a
+                const parsedResponse = JSON.parse(jsonString);
+
+                setMessageFromBackend(parsedResponse.message); // Wydrukuje: "bad Credentials"
+            } catch (error) {
+                setMessageFromBackend("network error")
+            }
+
+        })
+
     }
-    // Wywołanie backendu, aby utworzyć sesję
-    const response = await fetchWithAuth('/api/payment/stripe', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
 
-    const session = await response.json();
 
-    // Przekierowanie na stronę płatności Stripe
-    if ("redirectToCheckout" in stripe) {
-        const {error} = await stripe.redirectToCheckout({
-            sessionId: session.id,
-        });
-
-        if (error) {
-            console.error('Error redirecting to checkout:', error);
-        }
-    }
-
-};
-
-export default function PaymentComp(){
 
     return (
         <>
-            <p> tutaj powinny być 2 opcje w zależności od tego jaki jest pakiet,
-                ulepsz wersje, zakończ subskrypcję
-            </p>
-            <Button onClick={handleClick}>
-                Go to Checkout
-            </Button>
+            <Box sx={{
+                width: '100%',
+                typography: 'body1',
+                padding: "30px 10px",
+                margin: "30px auto",
+                borderRadius: "20px",
+                backgroundColor: "#363636"
+            }}>
+                <Box sx = {{display: "flex", justifyContent: "space-evenly"}}>
+                    <CardComponent prodName={prodName.yearly} header={"rozpocznij roczną subskrypcje"} name={"subskrypcja roczna"} timePeriod={"365 dni"} description={
+                        "subskrypcja zapewniająca dostęp do aplikacji przez 365 dni\n- przy zakupie rocznym obowiązuje zniżka 18%\n- podczas trwania subskrypcji nieograniczona liczba zapytań"}/>
+                    <CardComponent prodName={prodName.monthlyDefault} header={status===AccountStatus.New? "ROZPOCZNIJ WERSJE PRÓBNĄ" : "wznów subskrypcje"}  name={"miesięczna"} timePeriod={"30 dni"} description={"subskrypcja miesięczna pozwalająca na dostęp do sprawdzania wyników\n- 200 zapytań pojedyńczych\n- 4 zapytania listowne"}/>
+                </Box>
+
+                {status===AccountStatus.Active ? <Button onClick={cancelSub}>zakończ subskrypcje</Button> : <></>}
+
+
+                <Snackbar
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                    open={openSnackbar}
+                    onClose={()=> {
+                        setOpenSnackbar(false)
+                        setMessageFromBackend("")
+                    }}
+                    message={messageFromBackend}
+                />
+            </Box>
         </>
-    );
+    )
 }

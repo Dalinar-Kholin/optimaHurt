@@ -33,7 +33,7 @@ export default function HurtSetting({fn} : IHurtSettings) {
                         id="panel1-header"
                         sx={{backgroundColor:(availableHurt&name) > 0 ? "#81c784" : "" }}
                     >
-                        {hurtNames[name] + ((availableHurt&name)>0 ? " - obecne dane są poprawne" : "")}
+                        {hurtNames[name] + ((availableHurt&name)>0 ? " - obecne dane są poprawne" : " - brak poprawnych danych")}
                     </AccordionSummary>
                     <AccordionDetails>
                         <HurtComp fn={(username, pass, name) => {

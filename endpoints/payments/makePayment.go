@@ -9,15 +9,42 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	. "optimaHurt/constAndVars"
 	"optimaHurt/user"
+	"strconv"
 )
 
-const renewalSubscription = "price_1Pnmzv03bfZgIVzMLcRabUXr"
-const newSubscription = "price_1PmaHx03bfZgIVzMFmnkSgaK"
+const (
+	monthlyDefault = iota
+	yearly
+)
+
+const (
+	renewalSubscription        = "price_1Pnmzv03bfZgIVzMLcRabUXr"
+	newSubscription            = "price_1PmaHx03bfZgIVzMFmnkSgaK"
+	yearlySubscription         = "price_1Po58G03bfZgIVzMFOHRsZgA"
+	discountYearlySubscription = "hM66W9Nz"
+)
 
 func MakePayment(c *gin.Context) {
 
 	auth := c.Request.Header.Get("Authorization") // jesteśmy za bramką
 	userInstance := Users[auth]
+
+	prodNameString := c.Request.URL.Query().Get("prodName")
+	if prodNameString == "" {
+		c.JSON(400, gin.H{
+			"message": "bad request",
+		})
+		return
+	}
+
+	prodName, err := strconv.Atoi(prodNameString)
+	if err != nil {
+		fmt.Printf("%v\n", prodName)
+		c.JSON(400, gin.H{
+			"message": "bad request",
+		})
+		return
+	}
 
 	conn := DbConnect.Collection(UserCollection)
 
@@ -41,9 +68,14 @@ func MakePayment(c *gin.Context) {
 		})
 		return
 	}
+
 	priceId := newSubscription
-	if userInDb.AccountStatus != user.New {
-		priceId = renewalSubscription
+	if prodName == monthlyDefault {
+		if userInDb.AccountStatus != user.New {
+			priceId = renewalSubscription
+		}
+	} else if prodName == yearly {
+		priceId = yearlySubscription
 	}
 
 	// Tworzenie sesji płatności Stripe
@@ -62,9 +94,19 @@ func MakePayment(c *gin.Context) {
 		Metadata: map[string]string{
 			"userId": Users[auth].Id.Hex(), // Przekazanie identyfikatora użytkownika
 		},
-		SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
-			TrialPeriodDays: stripe.Int64(14), // 14-dniowy okres próbny
-		},
+	}
+
+	if prodName == monthlyDefault && userInDb.AccountStatus == user.New {
+		params.SubscriptionData = &stripe.CheckoutSessionSubscriptionDataParams{
+			TrialPeriodDays: stripe.Int64(14)}
+	} // 14 dni próbne
+
+	if prodName == yearly {
+		params.Discounts = []*stripe.CheckoutSessionDiscountParams{
+			&stripe.CheckoutSessionDiscountParams{
+				Coupon: stripe.String(discountYearlySubscription),
+			},
+		}
 	}
 
 	s, err := session.New(params)

@@ -112,6 +112,7 @@ func main() {
 
 		api.POST("/payment/stripe", middleware.CheckToken, payments.MakePayment)
 		api.POST("/payment/stripe/webhook/confirm", payments.ConfirmPayment)
+		api.GET("/payment/stripe/cancel", middleware.CheckToken, payments.EndSubscription)
 
 		api.PATCH("/changeUserData", middleware.CheckToken, account.ChangeUserData)
 

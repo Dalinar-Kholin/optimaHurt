@@ -21,8 +21,8 @@ export default function LoginForm(){
                 e.preventDefault()
                 // logowanie sie
                 const LoginData = {
-                    username : username,
-                    password : password,
+                    username: username,
+                    password: password,
                 }
                 fetch('/api/login', {
                     method: 'POST',
@@ -44,6 +44,7 @@ export default function LoginForm(){
 
                     localStorage.setItem("accessToken", data.token)
                     localStorage.setItem("availableHurts", "" + data.availableHurts)
+                    localStorage.setItem("accountStatus", "" + data.accountStatus)
 
                     setIsProperData(true)
                     setUsername("")
@@ -71,7 +72,7 @@ export default function LoginForm(){
                     label="Password"
                     type="password"
                     autoComplete="current-password"
-                    value={ password }
+                    value={password}
                     onChange={e => setPassword(e.target.value)}
                 />
                 <p></p>
@@ -80,19 +81,19 @@ export default function LoginForm(){
                     {errorMessage}
                 </Alert>}
                 <p></p>
-                <Button variant="outlined" onClick={()=> {
-                    navigate("/forgotPassword")
-                }}>zapomniałem hasła</Button>
-                <p></p>
                 <Button variant="contained" type={"submit"}>
                     Login
                 </Button>
                 <p></p>
-                <Button variant="contained" onClick={()=>{
+                <Button variant="contained" onClick={() => {
                     navigate("/signIn")
                 }}>
                     SignIn
                 </Button>
+                <p></p>
+                <Button variant="outlined" onClick={() => {
+                    navigate("/forgotPassword")
+                }}>zapomniałem hasła</Button>
 
             </form>
         </>
