@@ -6,7 +6,7 @@ import (
 )
 
 func CheckEan(ean string) error {
-	if !(len(ean) == 11 || len(ean) == 8) {
+	if len(ean) < 5 || len(ean) > 15 {
 		return errors.New("błędna długość ean")
 	}
 	allowedPattern := `^[0-9]+`
