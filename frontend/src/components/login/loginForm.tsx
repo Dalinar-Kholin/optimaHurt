@@ -42,6 +42,12 @@ export default function LoginForm(){
                     return response.json();
                 }).then(data => {
 
+                    if (data.error != undefined){
+                        setErrorMessage(data.error)
+                        setIsProperData(false)
+                        return
+                    }
+
                     localStorage.setItem("accessToken", data.token)
                     localStorage.setItem("availableHurts", "" + data.availableHurts)
                     localStorage.setItem("accountStatus", "" + data.accountStatus)

@@ -28,6 +28,12 @@ export default function ResetPassword() {
         }).then(res => {
             return res.json()
         }). then(data => {
+
+            if (data.error != undefined){
+                setMessage(data.error)
+                return
+            }
+
             setMessage(data.message)
         }).catch(() => {
             setMessage("nie udało się zmienić hasła")

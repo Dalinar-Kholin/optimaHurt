@@ -83,6 +83,7 @@ func (s *Specjal) RefreshToken(client *http.Client) bool {
 	}
 
 	var sotToken hurtownie.SotAndSpecjalTokenResponse
+	defer resp.Body.Close()
 	responseReader := json.NewDecoder(resp.Body)
 	err = responseReader.Decode(&sotToken)
 	if err != nil {
@@ -164,6 +165,7 @@ func (s *Specjal) SearchProduct(Ean string, client *http.Client) (interface{}, e
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
@@ -247,6 +249,7 @@ func (s *Specjal) AddToCart(list hurtownie.WishList, client *http.Client) bool {
 		return false
 	}
 	var resJson SorResponse
+	defer resp.Body.Close()
 	responseReader := json.NewDecoder(resp.Body)
 	err = responseReader.Decode(&resJson)
 	if err != nil {
@@ -265,6 +268,7 @@ func (s *Specjal) AddToCart(list hurtownie.WishList, client *http.Client) bool {
 		return false
 	}
 	var productRes []ProductResponse
+	defer resp.Body.Close()
 	responseReader = json.NewDecoder(resp.Body)
 	err = responseReader.Decode(&productRes)
 	/*ICOM : WAŻNE W CHUJ, ZKAŁAKDAM ŻE KOLEJNOŚĆ PRODUKTÓW JEST TAKA JAK NA LIŚCIE

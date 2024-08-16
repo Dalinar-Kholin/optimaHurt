@@ -136,6 +136,7 @@ func (e *EurocashObject) SearchProduct(Ean string, client *http.Client) (interfa
 		return nil, errors.New("Błąd przy wykonaniu żądania")
 	}
 	var itemData EurocashResponse
+	defer resp.Body.Close()
 	jsonReader := json.NewDecoder(resp.Body)
 	err = jsonReader.Decode(&itemData)
 	if err != nil {
@@ -237,6 +238,7 @@ func (e *EurocashObject) AddToCart(list hurtownie.WishList, client *http.Client)
 	}
 
 	var response EurocashAddAToCartResponse
+	defer resp.Body.Close()
 	jsonReader := json.NewDecoder(resp.Body)
 	err = jsonReader.Decode(&response)
 

@@ -11,6 +11,13 @@ export default function ForgotPassword(){
         fetch("/api/forgotPassword"+ `?email=${email}`).then(response => {
             return response.json()
         }).then(data =>{
+
+            if (data.error != undefined){
+                setMessage(data.error)
+                return
+            }
+
+
             setMessage(data.message)
             }
         )

@@ -30,9 +30,9 @@ func MakePayment(c *gin.Context) {
 	userInstance := Users[auth]
 
 	prodNameString := c.Request.URL.Query().Get("prodName")
-	if prodNameString == "" {
-		c.JSON(400, gin.H{
-			"message": "bad request",
+	if prodNameString == "" || len(prodNameString) > 3 {
+		c.JSON(200, gin.H{
+			"error": "bad request",
 		})
 		return
 	}
@@ -40,8 +40,8 @@ func MakePayment(c *gin.Context) {
 	prodName, err := strconv.Atoi(prodNameString)
 	if err != nil {
 		fmt.Printf("%v\n", prodName)
-		c.JSON(400, gin.H{
-			"message": "bad request",
+		c.JSON(200, gin.H{
+			"error": "bad request",
 		})
 		return
 	}

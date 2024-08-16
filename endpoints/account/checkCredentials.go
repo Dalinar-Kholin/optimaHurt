@@ -2,10 +2,12 @@ package account
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"optimaHurt/hurtownie"
 	"optimaHurt/hurtownie/factory"
+	"optimaHurt/stringCheckers"
 )
 
 type DataToCheck struct {
@@ -14,19 +16,26 @@ type DataToCheck struct {
 	HurtName hurtownie.HurtName `json:"hurtName"`
 }
 
-func (a *AccountEndpoint) CheckCredentials(c *gin.Context) {
+func CheckCredentials(c *gin.Context) {
 	var Creds DataToCheck
 	decoder := json.NewDecoder(c.Request.Body)
 	err := decoder.Decode(&Creds)
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"error": "bad Request Body",
 		})
 		return
 	}
+	if err := stringCheckers.CheckUsername(Creds.Username); err != nil {
+		c.JSON(200, gin.H{
+			"error": "bad Request Body",
+		})
+		return
+	}
+	fmt.Printf("dane lowowania do hurtowni := %v\n", Creds)
 	hurt, err := factory.HurtFactory(Creds.HurtName)
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"error": "bad Hurt enum",
 		})
 		return
@@ -38,7 +47,7 @@ func (a *AccountEndpoint) CheckCredentials(c *gin.Context) {
 	})
 
 	if !res {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"error": "bad Credentials",
 		})
 		return

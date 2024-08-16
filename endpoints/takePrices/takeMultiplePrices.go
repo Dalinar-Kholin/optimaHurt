@@ -2,38 +2,38 @@ package takePrices
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"optimaHurt/constAndVars"
 	"optimaHurt/hurtownie"
-	"optimaHurt/user"
+	"optimaHurt/stringCheckers"
 	"sync"
 )
 
-func (t *TakePrices) TakeMultiple(c *gin.Context) {
+func TakeMultiple(c *gin.Context) {
 	token := c.Request.Header.Get("Authorization")
 
-	if token == "" {
-		c.JSON(400, gin.H{
-			"error": "where Token?",
-		})
-		return
-	}
-	var ok bool
-	var userInstance *user.User
-	if userInstance, ok = constAndVars.Users[token]; !ok {
-		c.JSON(400, gin.H{
-			"error": "where logowanie?",
-		})
-	}
+	userInstance := constAndVars.Users[token]
 
 	var list hurtownie.WishList
-	responseReaderJson := json.NewDecoder(c.Request.Body)
-	err := responseReaderJson.Decode(&list)
+
+	err := json.NewDecoder(c.Request.Body).Decode(&list)
+	defer c.Request.Body.Close()
+
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"error": "bad list",
 		})
 		return
+	}
+
+	for _, x := range list.Items {
+		if err := stringCheckers.CheckEan(x.Ean); err != nil {
+			c.JSON(200, gin.H{
+				"error": fmt.Sprintf("w ean := %v wystąpił błąd := %v", x.Ean, err.Error()),
+			})
+			return
+		}
 	}
 
 	var wg sync.WaitGroup

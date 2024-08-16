@@ -49,6 +49,7 @@ func firstRequestForToken(client *http.Client) (authCookies *http.Cookie, firstR
 		return
 	}
 	firstRequestCookie = resp.Cookies()
+	defer resp.Body.Close()
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Błąd odczytu danych:", err)
@@ -115,7 +116,6 @@ func secondRequestForToken(client *http.Client,
 	location := response.Header.Get("Location")
 
 	if location == "" {
-		fmt.Println("Location is empty")
 		return
 	}
 
@@ -159,6 +159,7 @@ func thirdRequestForToken(code string, client *http.Client, secondRequestCookies
 	}
 
 	var sotToken hurtownie.SotAndSpecjalTokenResponse
+	defer resp.Body.Close()
 	responseReaderJson := json.NewDecoder(resp.Body)
 	err = responseReaderJson.Decode(&sotToken)
 	if err != nil {

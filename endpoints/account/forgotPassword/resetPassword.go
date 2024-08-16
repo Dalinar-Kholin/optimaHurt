@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	. "optimaHurt/constAndVars"
+	"optimaHurt/stringCheckers"
 )
 
 func ResetPasswordFunc(c *gin.Context) {
@@ -15,8 +16,22 @@ func ResetPasswordFunc(c *gin.Context) {
 	}
 
 	if err := json.NewDecoder(c.Request.Body).Decode(&requestBody); err != nil {
-		c.JSON(400, gin.H{
-			"message": "nie udało się sparsować odpowiedzi",
+		c.JSON(200, gin.H{
+			"error": "nie udało się sparsować odpowiedzi",
+		})
+		return
+	}
+
+	if err := stringCheckers.CheckPassword(requestBody.Password); err != nil {
+		c.JSON(200, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if err := stringCheckers.CheckToken(requestBody.Token); err != nil {
+		c.JSON(200, gin.H{
+			"error": err.Error(),
 		})
 		return
 	}
@@ -25,7 +40,7 @@ func ResetPasswordFunc(c *gin.Context) {
 	if err := DbConnect.Collection(ResetPassword).FindOneAndDelete(ContextBackground, bson.M{
 		"token": requestBody.Token,
 	}).Decode(&forgot); err != nil {
-		c.JSON(400, gin.H{"message": "bad token"})
+		c.JSON(200, gin.H{"error": "bad token"})
 		return
 	}
 
@@ -35,7 +50,7 @@ func ResetPasswordFunc(c *gin.Context) {
 		bson.M{"$set": bson.M{"password": requestBody.Password}}, nil).Err(); err != nil {
 		fmt.Printf("%v", err)
 		c.JSON(500, gin.H{
-			"message": "nie udało się zaktualizować hasła",
+			"error": "nie udało się zaktualizować hasła",
 		})
 		return
 	}

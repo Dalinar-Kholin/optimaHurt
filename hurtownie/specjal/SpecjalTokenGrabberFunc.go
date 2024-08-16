@@ -149,6 +149,7 @@ func tokenRequest(client *http.Client, cookies []*http.Cookie, code string) hurt
 		return hurtownie.SotAndSpecjalTokenResponse{}
 	}
 	var specjalTokenResponse hurtownie.SotAndSpecjalTokenResponse
+	defer resp.Body.Close()
 	responseReaderJson := json.NewDecoder(resp.Body)
 	err = responseReaderJson.Decode(&specjalTokenResponse)
 	if err != nil {

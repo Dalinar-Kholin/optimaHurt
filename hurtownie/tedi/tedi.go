@@ -68,6 +68,7 @@ func (t *Tedi) RefreshToken(client *http.Client) bool {
 	}
 
 	var sotToken hurtownie.SotAndSpecjalTokenResponse
+	defer resp.Body.Close()
 	responseReader := json.NewDecoder(resp.Body)
 	err = responseReader.Decode(&sotToken)
 	if err != nil {
@@ -105,6 +106,7 @@ func (t *Tedi) TakeToken(login, password string, client *http.Client) bool {
 	}
 
 	var tediTokenResponse hurtownie.SotAndSpecjalTokenResponse
+	defer resp.Body.Close()
 	responseReaderJson := json.NewDecoder(resp.Body)
 	err = responseReaderJson.Decode(&tediTokenResponse)
 	if err != nil {
@@ -130,6 +132,7 @@ func (t *Tedi) SearchProduct(Ean string, client *http.Client) (interface{}, erro
 		return nil, err
 	}
 	var serverResponse ProductResponse
+	defer resp.Body.Close()
 	responseReaderJson := json.NewDecoder(resp.Body)
 	err = responseReaderJson.Decode(&serverResponse)
 	if err != nil {

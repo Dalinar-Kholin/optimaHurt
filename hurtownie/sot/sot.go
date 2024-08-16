@@ -100,26 +100,15 @@ func (s *Sot) RefreshTokenFunc(client *http.Client) bool {
 	}
 
 	var sotToken hurtownie.SotAndSpecjalTokenResponse
+	defer resp.Body.Close()
 	responseReader := json.NewDecoder(resp.Body)
+
 	err = responseReader.Decode(&sotToken)
 	if err != nil {
 		return false
 	}
 	s.Token = sotToken
 	return true
-}
-
-func HelloHandler(w http.ResponseWriter, _ *http.Request) {
-	data := "{\"login\":\"" + "pog" + "\",\"password\":\"" + "nice" + "\"}"
-	res, err := http.Post("asdijhf", "application/json", bytes.NewBuffer([]byte(data)))
-	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
-		return
-	}
-
-	bdy, _ := io.ReadAll(res.Body)
-	fmt.Fprintf(w, string(bdy))
 }
 
 /*
@@ -180,6 +169,7 @@ func (s *Sot) SearchProduct(Ean string, client *http.Client) (interface{}, error
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
@@ -263,6 +253,7 @@ func (s *Sot) AddToCart(list hurtownie.WishList, client *http.Client) bool {
 		return false
 	}
 	var resJson SorResponse
+	defer resp.Body.Close()
 	responseReader := json.NewDecoder(resp.Body)
 	err = responseReader.Decode(&resJson)
 	if err != nil {
@@ -281,6 +272,7 @@ func (s *Sot) AddToCart(list hurtownie.WishList, client *http.Client) bool {
 		return false
 	}
 	var productRes []ProductResponse
+	defer resp.Body.Close()
 	responseReader = json.NewDecoder(resp.Body)
 	err = responseReader.Decode(&productRes)
 	/*ICOM : WAŻNE W CHUJ, ZKAŁAKDAM ŻE KOLEJNOŚĆ PRODUKTÓW JEST TAKA JAK NA LIŚCIE

@@ -67,7 +67,11 @@ func takeLoginSiteAndCSRF(client *http.Client) (csrf, location, verifyer string,
 	if err != nil {
 		return
 	}
+
+	defer resp.Body.Close()
+
 	body, _ := io.ReadAll(resp.Body)
+
 	index := strings.Index(string(body), "Cf")
 	csrf = string(body[index : index+155])
 	responseCookie = resp.Cookies()[0]

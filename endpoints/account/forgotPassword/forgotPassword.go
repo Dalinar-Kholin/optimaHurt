@@ -10,6 +10,7 @@ import (
 	"gopkg.in/mail.v2"
 	"net/http"
 	. "optimaHurt/constAndVars"
+	"optimaHurt/stringCheckers"
 	"optimaHurt/user"
 	"os"
 )
@@ -23,18 +24,24 @@ func ForgotPassword(c *gin.Context) {
 
 	email := c.Request.URL.Query().Get("email")
 
+	if err := stringCheckers.CheckEmail(email); err != nil {
+		c.JSON(200, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	var userInDb user.DataBaseUserObject
 
 	if err := DbConnect.Collection(UserCollection).FindOne(ContextBackground, bson.M{
 		"email": email,
 	}).Decode(&userInDb); err != nil {
-		c.JSON(400, gin.H{
-			"message": err.Error(),
+		c.JSON(200, gin.H{
+			"error": "bad email",
 		})
 		return
 	}
 
-	token := make([]byte, 32)
+	token := make([]byte, 64)
 	if _, err := rand.Read(token); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "cant generate token"})
 		return
@@ -52,14 +59,14 @@ func ForgotPassword(c *gin.Context) {
 
 	if _, err := DbConnect.Collection(ResetPassword).InsertOne(ContextBackground, forgot); err != nil {
 		c.JSON(500, gin.H{
-			"message": "server error",
+			"error": "server error",
 		})
 	}
 
 	if err := mail.NewDialer("smtp.gmail.com", 587, "optimahurtcorp@gmail.com", os.Getenv("EMAIL_PASSWORD")).DialAndSend(m); err != nil {
 		fmt.Printf("%v", err)
 		c.JSON(500, gin.H{
-			"message": err,
+			"error": "nie udało się wysłać maila",
 		})
 		return
 	}

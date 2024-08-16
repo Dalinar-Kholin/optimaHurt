@@ -3,7 +3,7 @@ import {handleResults} from "./handleResult/handleResults.ts";
 import {hurtNames, IItemToSearch} from "../../interfaces.ts";
 import fetchWithAuth from "../../typeScriptFunc/fetchWithAuth.ts";
 
-export function getHurtResult(Ean: string): Promise<IHurtInfoForComp[]> {
+export function getHurtResult(Ean: string): Promise<IHurtInfoForComp[] | string> {
     const url = "/api/takePrice?" + new URLSearchParams({ean: Ean});
 
 
@@ -13,12 +13,13 @@ export function getHurtResult(Ean: string): Promise<IHurtInfoForComp[]> {
         credentials: "include",
         method: "GET",
     }).then(response => {
-        if (response.status === 200) {
-            return response.json();
-        } else {
-            throw new Error("Error");
-        }
+        return response.json();
     }).then(data => {
+
+        if (data.error != undefined){
+            return data.error
+        }
+
         data.forEach((element: any) => {
             newData.push( handleResults({name: element.hurtName})(element.result));
         });
@@ -36,7 +37,7 @@ export interface IServerMultipleDataResult{
 
 
 
-export async function getMultipleHurtResult(Items: IItemToSearch[]) {
+export async function getMultipleHurtResult(Items: IItemToSearch[]):  Promise<Map<string, IServerMultipleDataResult[]> | string>{
     const map = new Map<string, IServerMultipleDataResult[]>();
 
     try {
@@ -49,6 +50,12 @@ export async function getMultipleHurtResult(Items: IItemToSearch[]) {
             }
         });
         const data = await res.then(response => {return response.json();});
+
+        if (data.error!= undefined){
+            return new Promise<string>(() => data.error)
+
+        }
+
         data.map((i : any) => {
             i.Result.map((item : any) => {
                 const itemArray = map.get(item.Ean);

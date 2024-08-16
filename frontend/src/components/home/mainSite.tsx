@@ -119,6 +119,13 @@ export default function MainSite() {
         setIsLoadingProduct(true)
         try {
             getMultipleHurtResult(prodToSearch).then(data => {
+
+                if (typeof(data)=="string"){
+                    setErrorMessage(data)
+                    setIsLoadingProduct(false)
+                    return
+                }
+
                 const newOptItems: IItemInstance[] = []
                 const newAllResult: IAllResult[] = []
                 prodToSearch.map((item) => {
@@ -192,6 +199,13 @@ export default function MainSite() {
                     setIsLoadingProduct(true)
                     try {
                         getHurtResult(Ean).then(data => {
+
+                            if (typeof (data) === "string"){
+                                setErrorMessage(data)
+                                setIsLoadingProduct(false)
+                                return
+                            }
+
                             const newMap = new Map<hurtNames, ReactNode>()
                             let i = 0
                             data.map((item) => {
@@ -285,7 +299,15 @@ export default function MainSite() {
                         }
                         return response.json()
                     }).then(data => {
-                        console.log(data)
+
+                        if (data.error != undefined){
+                            setMessageFromBackend(data.error)
+                            setOpenSnackbar(true)
+                            return
+                        }
+
+                        setMessageFromBackend("udało sie złożyć zamówienie")
+
                     }).catch(err => {
                         setErrorMessage(err)
                         throw new Error(err);

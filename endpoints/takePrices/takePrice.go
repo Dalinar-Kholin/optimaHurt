@@ -4,30 +4,25 @@ import (
 	"github.com/gin-gonic/gin"
 	"optimaHurt/constAndVars"
 	"optimaHurt/hurtownie"
+	"optimaHurt/stringCheckers"
 	"optimaHurt/user"
 	"sync"
 )
 
-type TakePrices struct {
-}
-
-func (t *TakePrices) TakePrice(c *gin.Context) {
+func TakePrice(c *gin.Context) {
 	token := c.Request.Header.Get("Authorization")
 
-	if token == "" {
-		c.JSON(400, gin.H{
-			"error": "where Token?",
+	userInstance := constAndVars.Users[token]
+
+	ean := c.Query("ean")
+
+	if err := stringCheckers.CheckEan(ean); err != nil {
+		c.JSON(200, gin.H{
+			"error": err.Error(),
 		})
 		return
 	}
-	var ok bool
-	var userInstance *user.User
-	if userInstance, ok = constAndVars.Users[token]; !ok {
-		c.JSON(400, gin.H{
-			"error": "where logowanie?",
-		})
-	}
-	ean := c.Query("ean")
+
 	var wg sync.WaitGroup
 	ch := make(chan interface{})
 	for _, hurt := range userInstance.Hurts {

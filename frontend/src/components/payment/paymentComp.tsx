@@ -26,27 +26,18 @@ export default function PaymentComp() {
         }).then(response =>{
             return response.json()
         }).then(data =>{
-            setMessageFromBackend(data.message)
-            setOpenSnackbar(true)
-        }).catch(err =>{
-            try {
-                const jsonStart = err.message.indexOf('{');
-                if (jsonStart === -1) {
-                    throw new Error('Nie znaleziono poprawnego JSON-a w odpowiedzi.');
-                }
-                // Wyciągamy część JSON-a z odpowiedzi
-                const jsonString = err.message.substring(jsonStart);
-                // Parsowanie JSON-a
-                const parsedResponse = JSON.parse(jsonString);
 
-                setMessageFromBackend(parsedResponse.message); // Wydrukuje: "bad Credentials"
-            } catch (error) {
-                setMessageFromBackend("network error")
+            if (data.error != undefined){
+                setMessageFromBackend(data.error)
+                setOpenSnackbar(true)
+                return
             }
 
-        })
+            setMessageFromBackend(data.message)
+            setOpenSnackbar(true)
+        }).catch(_err => {
 
-    }
+        })}
 
 
 
@@ -79,6 +70,9 @@ export default function PaymentComp() {
                     message={messageFromBackend}
                 />
             </Box>
+
+
+
         </>
     )
 }

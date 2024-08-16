@@ -6,39 +6,34 @@ import (
 	"github.com/gin-gonic/gin"
 	"optimaHurt/constAndVars"
 	"optimaHurt/hurtownie"
-	"optimaHurt/user"
+	"optimaHurt/stringCheckers"
 	"sync"
 )
 
-type Order struct {
-}
-
-func (o *Order) MakeOrder(c *gin.Context) {
+func MakeOrder(c *gin.Context) {
 	token := c.Request.Header.Get("Authorization")
 
-	if token == "" {
-		c.JSON(400, gin.H{
-			"error": "where Token?",
-		})
-		return
-	}
-	var ok bool
-	var userInstance *user.User
-	if userInstance, ok = constAndVars.Users[token]; !ok {
-		c.JSON(400, gin.H{
-			"error": "where logowanie?",
-		})
-	}
+	userInstance := constAndVars.Users[token]
 	var list hurtownie.WishList
-	responseReaderJson := json.NewDecoder(c.Request.Body)
-	err := responseReaderJson.Decode(&list)
+
+	err := json.NewDecoder(c.Request.Body).Decode(&list)
+	defer c.Request.Body.Close()
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"error": "bad list",
 		})
 		return
 	}
-	fmt.Printf("list := %v\n", list)
+
+	for _, x := range list.Items {
+		if err := stringCheckers.CheckEan(x.Ean); err != nil {
+			c.JSON(200, gin.H{
+				"error": fmt.Sprintf("w ean := %v wystąpił błąd := %v", x.Ean, err.Error()),
+			})
+			return
+		}
+	}
+
 	var wg sync.WaitGroup
 
 	ch := make(chan Result)

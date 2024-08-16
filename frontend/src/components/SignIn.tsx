@@ -55,7 +55,15 @@ export default function SignIn(){
                         });
                     }
                     return response.json();
-                }).then(_data => {
+                }).then(data => {
+
+                    if (data.error != undefined){
+                        setErrorMessage(data.error)
+                        setIsProperData(false)
+                        return
+                    }
+
+
                     setIsProperData(true)
                     setUsername("")
                     setPassword("")

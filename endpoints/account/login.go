@@ -2,22 +2,21 @@ package account
 
 import (
 	"crypto/rand"
-	"encoding/hex"
+	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
-	"golang.org/x/crypto/sha3"
 	"io"
 	"net/http"
 	. "optimaHurt/constAndVars"
 	"optimaHurt/hurtownie"
 	"optimaHurt/hurtownie/factory"
+	"optimaHurt/stringCheckers"
 	"optimaHurt/user"
 	"sync"
 )
 
-func MakeNewUser(dbUser user.DataBaseUserObject) (userInstance *user.User, availableHurts hurtownie.HurtName, resultsLogin []ChannelResponse) {
+func makeNewUser(dbUser user.DataBaseUserObject) (userInstance *user.User, availableHurts hurtownie.HurtName, resultsLogin []ChannelResponse) {
 	var hurtTab []hurtownie.IHurt
 
 	var wg sync.WaitGroup
@@ -68,7 +67,6 @@ func MakeNewUser(dbUser user.DataBaseUserObject) (userInstance *user.User, avail
 	}
 	userInstance = &user.User{Client: client, Hurts: hurtTab, Creds: dbUser.Creds}
 	resultsLogin = res
-	fmt.Printf("userInstance := %v\n", userInstance)
 	return
 }
 
@@ -77,7 +75,7 @@ type ChannelResponse struct {
 	Success bool               `json:"success"`
 }
 
-func (a *AccountEndpoint) Login(c *gin.Context) {
+func Login(c *gin.Context) {
 	connection := DbConnect.Collection(UserCollection)
 
 	request, err := io.ReadAll(c.Request.Body)
@@ -86,33 +84,47 @@ func (a *AccountEndpoint) Login(c *gin.Context) {
 		return
 	}
 	defer c.Request.Body.Close()
+
 	var reqBody user.LoginBodyData
-	err = json.Unmarshal(request, &reqBody)
-	if err != nil {
+
+	if err = json.Unmarshal(request, &reqBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "bad json"})
 		return
 	}
-	var dataBaseResponse user.DataBaseUserObject
 
-	err = connection.FindOne(ContextBackground, bson.M{
-		"username": reqBody.Username,
-		"password": reqBody.Password,
-	}).Decode(&dataBaseResponse)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "bad credentials"})
+	if err := stringCheckers.CheckUsername(reqBody.Username); err != nil {
+		c.JSON(200, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
-	fmt.Printf("dataBaseResponse := %v\n", dataBaseResponse)
-	userInstance, loggedHurts, loginLog := MakeNewUser(dataBaseResponse)
+
+	if err := stringCheckers.CheckPassword(reqBody.Password); err != nil {
+		c.JSON(200, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	var dataBaseResponse user.DataBaseUserObject
+
+	if err = connection.FindOne(ContextBackground, bson.M{
+		"username": reqBody.Username,
+		"password": reqBody.Password,
+	}).Decode(&dataBaseResponse); err != nil {
+		c.JSON(200, gin.H{"error": "bad credentials"})
+		return
+	}
+
+	userInstance, loggedHurts, loginLog := makeNewUser(dataBaseResponse)
 	userInstance.Id = dataBaseResponse.Id
 	userInstance.AccountStatus = dataBaseResponse.AccountStatus
 	newToken := make([]byte, 64)
 	if _, err := rand.Read(newToken); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "cant generate token"})
+		c.JSON(500, gin.H{"error": "cant generate token"})
 		return
 	}
-	resToken := sha3.Sum256(newToken)
-	shieldedToken := hex.EncodeToString(resToken[:])
+	shieldedToken := base64.URLEncoding.EncodeToString(newToken)
 	//shieldedToken := base64.StdEncoding.EncodeToString(newToken) // token jest użytkowany tylko podczas sesji, więc nie ma potrzeby przechowywania go w bazie danych
 	Users[shieldedToken] = userInstance
 	c.JSON(200, gin.H{
@@ -120,8 +132,7 @@ func (a *AccountEndpoint) Login(c *gin.Context) {
 		"token":          shieldedToken,
 		"availableHurts": loggedHurts,
 		"accountStatus":  dataBaseResponse.AccountStatus,
-	},
-	)
+	})
 }
 
 //

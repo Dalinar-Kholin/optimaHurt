@@ -39,29 +39,16 @@ export default function HurtComp({name, fn} : IHurtComp){
                                     if (response.status!=200){
                                         response.json().then(data => {
                                             setError(data.error)
-                                            console.log("nice");
-                                            throw new Error("caught")
                                         })
+                                        return;
                                     }
                                     // jeżeli dostaliśmy 200 oznacza że dane są prawidłowe i możemy jest ustawić
                                     setError("")
                                     fn(username, password, name)
                                     return
-                                }).catch(err =>{
-                                    try {
-                                        const jsonStart = err.message.indexOf('{');
-                                        if (jsonStart === -1) {
-                                            throw new Error('Nie znaleziono poprawnego JSON-a w odpowiedzi.');
-                                        }
-                                        // Wyciągamy część JSON-a z odpowiedzi
-                                        const jsonString = err.message.substring(jsonStart);
-                                        // Parsowanie JSON-a
-                                        const parsedResponse = JSON.parse(jsonString);
-
-                                        setError(parsedResponse.error); // Wydrukuje: "bad Credentials"
-                                    } catch (error) {
+                                }).catch(_err =>{
                                         setError("network error")
-                                    }
+
                                 })
                             }
                         }}
