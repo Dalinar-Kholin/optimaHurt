@@ -1,6 +1,5 @@
 import AccountSetting from "./accountSetting/accountSetting.tsx";
 import HurtSetting from "./hurtSetting/hurtSetting.tsx";
-import CompanyData from "./companyData/companyData.tsx";
 import {SyntheticEvent, useState} from "react";
 import Box from "@mui/material/Box";
 import TabContext from '@mui/lab/TabContext';
@@ -44,7 +43,7 @@ export default function SettingPage(){
                         <TabList onChange={handleChange} aria-label="lab API tabs example" >
                             <Tab label="ustawienia konta" value="1" />
                             <Tab label="ustawienia hurtowni" value="2" />
-                            <Tab label="dane firmy" value="3" />
+                            {/*<Tab label="dane firmy" value="3" />*/}
                         </TabList>
                     </Box>
                     <TabPanel value="1">
@@ -63,9 +62,9 @@ export default function SettingPage(){
                             }
                         }}/>
                     </TabPanel>
-                    <TabPanel value="3">
+                    {/*<TabPanel value="3">
                         <CompanyData/>
-                    </TabPanel>
+                    </TabPanel>*/}
 
                 </TabContext>
                 {newHurtData.length!==0 || newAccountData!=="" || _newCompanyData.length!==0 ? <Button variant={"contained"} color={"success"} onClick={()=> {

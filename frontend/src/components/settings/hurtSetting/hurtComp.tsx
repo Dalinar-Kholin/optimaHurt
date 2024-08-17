@@ -13,45 +13,50 @@ export default function HurtComp({name, fn} : IHurtComp){
     const [password, setPassword] = useState<string>("")
     const [error, setError] = useState<string>("")
 
+    const handleClick = (e : any)=> {
+        if (e.key=="Enter"){
+            const body = {
+                username : username,
+                password: password,
+                hurtName: name
+            }
+            fetchWithAuth("/api/checkCredentials",  {
+                body: JSON.stringify(body),
+                method: "POST",
+                headers:{
+                    "Content-Type": "application/json"
+                }
+            }).then(response =>{
+                if (response.status!=200){
+                    response.json().then(data => {
+                        setError(data.error)
+                    })
+                    return;
+                }
+                // jeżeli dostaliśmy 200 oznacza że dane są prawidłowe i możemy jest ustawić
+                setError("")
+                fn(username, password, name)
+                return
+            }).catch(_err =>{
+                setError("network error")
+
+            })
+        }
+    }
+
+
     return(
         <>
             <form>
-                <TextField value={username}  autoComplete={"off"} label={"username"} onChange={(e)=>{
+                <TextField value={username}  autoComplete={"off"} label={"username"}
+                           onKeyDown={(e)=>{handleClick(e)}}
+                           onChange={(e)=>{
                     setUsername(e.target.value)
                 }}></TextField>
                 <TextField value={password}  autoComplete={"off"} label={"password"} onChange={(e)=>{
                     setPassword(e.target.value)
                 }}
-                        onKeyDown={(e)=> {
-                            if (e.key=="Enter"){
-                                const body = {
-                                    username : username,
-                                    password: password,
-                                    hurtName: name
-                                }
-                                fetchWithAuth("/api/checkCredentials",  {
-                                    body: JSON.stringify(body),
-                                    method: "POST",
-                                    headers:{
-                                        "Content-Type": "application/json"
-                                    }
-                                }).then(response =>{
-                                    if (response.status!=200){
-                                        response.json().then(data => {
-                                            setError(data.error)
-                                        })
-                                        return;
-                                    }
-                                    // jeżeli dostaliśmy 200 oznacza że dane są prawidłowe i możemy jest ustawić
-                                    setError("")
-                                    fn(username, password, name)
-                                    return
-                                }).catch(_err =>{
-                                        setError("network error")
-
-                                })
-                            }
-                        }}
+                        onKeyDown={(e) => handleClick(e)}
                 ></TextField>
                 {error === "" ? <div></div> : <Alert severity="error">
                     <AlertTitle>Error</AlertTitle>

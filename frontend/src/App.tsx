@@ -58,7 +58,7 @@ function App() {
                         <Route path={"/*"} element={<Navigate to={"/main"}/>}/>
                         <Route path={"/failed"} element={<FailedLoginPage/>}/>
                         <Route path={"/signIn"} element={<SignIn/>} />
-                        <Route path={"/payment"} element={<PaymentComp/>}/>
+                        <Route path={"/płatności"} element={<PaymentComp/>}/>
                         <Route path={"/forgotPassword"} element={<ForgotPassword/>}/>
                         <Route path={"/resetPassword"} element={<ResetPassword/>}/>
                     </Routes>

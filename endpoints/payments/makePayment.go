@@ -18,10 +18,10 @@ const (
 )
 
 const (
-	renewalSubscription        = "price_1Pnmzv03bfZgIVzMLcRabUXr"
-	newSubscription            = "price_1PmaHx03bfZgIVzMFmnkSgaK"
-	yearlySubscription         = "price_1Po58G03bfZgIVzMFOHRsZgA"
-	discountYearlySubscription = "hM66W9Nz"
+	renewalSubscription        = "price_1PonIR03bfZgIVzM5PIbJmee"
+	newSubscription            = "price_1PonIR03bfZgIVzM5PIbJmee"
+	yearlySubscription         = "price_1PonJq03bfZgIVzMYyhkT9ct"
+	discountYearlySubscription = "ZYUEZYw0"
 )
 
 func MakePayment(c *gin.Context) {

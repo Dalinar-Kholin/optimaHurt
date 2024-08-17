@@ -35,7 +35,7 @@ export default function InputComp({setItem,setName}: IInputField){
         <Container maxWidth="md" style={{marginTop: '2rem'}}>
             <Box display="flex" flexDirection="column" alignItems="center">
                 <Typography variant="h4" component="h1" gutterBottom>
-                    File Reader
+                    Czytanie listami
                 </Typography>
                 <input
                     accept={".txt" || ".pdf" || ".xlsx"}
@@ -46,7 +46,7 @@ export default function InputComp({setItem,setName}: IInputField){
                 />
                 <label htmlFor="file-input">
                     <Button variant="contained" color="primary" component="span">
-                        Upload File
+                        kliknij i wybierz plik, lub zrzuć plik na stroone
                     </Button>
                 </label>
             </Box>

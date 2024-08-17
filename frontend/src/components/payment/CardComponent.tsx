@@ -11,7 +11,7 @@ interface ICardComponent{
 }
 
 
-const stripePromise = loadStripe("pk_test_51PmZWL03bfZgIVzMHNjyOTqAdtVPxS1E4neUDh79fSUyUl87UyiSN7TXtzax7y6AiWNGmrzuU7zAdIqdjLDypQ5300KU6kviFq");
+const stripePromise = loadStripe("pk_live_51PmZWL03bfZgIVzMKAMyQ6jAw833lwQbpePt4itZJCZAnQ3ZBFT4gfD7I56DHfWQX8og5i1c7AHqEODqq7Xtz5qJ006nm0AoLj");
 
 
 export default function CardComponent({name, timePeriod, description, header, prodName}: ICardComponent){

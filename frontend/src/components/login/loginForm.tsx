@@ -16,7 +16,7 @@ export default function LoginForm(){
 
     return (
         <>
-            <h1>Login Form</h1>
+            <h1>Logowanie</h1>
             <form onSubmit={e => {
                 e.preventDefault()
                 // logowanie sie
@@ -67,16 +67,16 @@ export default function LoginForm(){
                 <TextField
                     autoComplete={"off"}
                     id="filled"
-                    label="Username"
-                    placeholder="username"
+                    label="nazaw użytkownia"
+                    placeholder="nazaw użytkownia"
                     value={username}
                     onChange={e => setUsername(e.target.value)}
                 />
                 <p></p>
                 <TextField
                     id="outlined-password-input"
-                    label="Password"
-                    type="password"
+                    label="hasło"
+                    type="hasło"
                     autoComplete="current-password"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
@@ -88,13 +88,13 @@ export default function LoginForm(){
                 </Alert>}
                 <p></p>
                 <Button variant="contained" type={"submit"}>
-                    Login
+                    zaloguj
                 </Button>
                 <p></p>
                 <Button variant="contained" onClick={() => {
                     navigate("/signIn")
                 }}>
-                    SignIn
+                    załóż konto
                 </Button>
                 <p></p>
                 <Button variant="outlined" onClick={() => {
