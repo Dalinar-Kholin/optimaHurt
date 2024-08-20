@@ -52,7 +52,7 @@ function App() {
                     {showAppBar ?<AppBarCustomed /> : <></> }
                     <Routes>
                         <Route path={"/login"} element={<LoginForm/>}/>
-                        <Route path={"/main"} element={<MainSite/>}/>
+                        <Route path={"/strona główna"} element={<MainSite/>}/>
                         <Route path={"/cennik"} element={<Tariff/>}/>
                         <Route path={"/ustawienia"} element={<SettingPage/>}/>
                         <Route path={"/*"} element={<Navigate to={"/main"}/>}/>

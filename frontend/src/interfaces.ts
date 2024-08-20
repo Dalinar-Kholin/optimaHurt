@@ -1,7 +1,7 @@
 import {IHurtInfoForComp} from "./components/home/handleResult/handleResultInterfaces.ts";
 import {IServerMultipleDataResult} from "./components/home/resultGrabbers.ts";
 
-export type PATH= "main" | "cennik" | "ustawienia" | "login" | "płatności"
+export type PATH= "strona główna" | "cennik" | "ustawienia" | "login" | "płatności"
 
 export const freeBarAndCookiePath = ["/login" , "/signIn", "/forgotPassword", "/resetPassword"]
 

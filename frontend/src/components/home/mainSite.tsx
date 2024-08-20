@@ -93,7 +93,7 @@ export default function MainSite() {
     const changeResultComp = (ean: string, name: string) => {
         const newComponentHashTable = new Map<hurtNames, ReactNode>()
         setSelectedEan(ean)
-
+        setEan(ean)
         if (allResult.filter((item) => item.ean === ean).length === 0) {
             newComponentHashTable.set(hurtNames.none,
                 <HurtResultForm
