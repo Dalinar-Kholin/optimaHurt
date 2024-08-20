@@ -56,7 +56,7 @@ export default function LoginForm(){
                     setIsProperData(true)
                     setUsername("")
                     setPassword("")
-                    navigate("/main")
+                    navigate("/strona główna")
                     // dodać ciasteczka
                     // przenieść na stronę główną
                     console.log(data)
