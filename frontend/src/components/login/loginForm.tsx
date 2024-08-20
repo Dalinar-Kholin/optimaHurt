@@ -51,6 +51,7 @@ export default function LoginForm(){
                     localStorage.setItem("accessToken", data.token)
                     localStorage.setItem("availableHurts", "" + data.availableHurts)
                     localStorage.setItem("accountStatus", "" + data.accountStatus)
+                    localStorage.setItem("companyName", data.companyName)
 
                     setIsProperData(true)
                     setUsername("")

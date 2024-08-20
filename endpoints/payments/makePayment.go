@@ -52,7 +52,7 @@ func MakePayment(c *gin.Context) {
 
 	if err := conn.FindOne(ContextBackground, bson.M{"_id": userInstance.Id}).Decode(&userInDb); err != nil {
 		c.JSON(500, gin.H{
-			"message": "server error",
+			"error": "server error",
 		})
 		return
 	}
@@ -64,7 +64,7 @@ func MakePayment(c *gin.Context) {
 	newCustomer, err := customer.New(customerParams)
 	if err != nil {
 		c.JSON(500, gin.H{
-			"message": "server error",
+			"error": "server error",
 		})
 		return
 	}

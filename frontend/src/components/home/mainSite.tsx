@@ -1,12 +1,13 @@
 import {ReactNode, useCallback, useEffect, useState} from "react";
 import {
     Alert,
-    AlertTitle,
+    AlertTitle, Avatar,
     Button,
-    CircularProgress,
-    List,
+    CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+    List, ListItemAvatar,
     ListItemButton,
-    ListItemText, Snackbar,
+    ListItemText,
+    Snackbar,
     TextField,
     Typography
 } from "@mui/material";
@@ -26,6 +27,8 @@ import fetchWithAuth from "../../typeScriptFunc/fetchWithAuth.ts";
 export default function MainSite() {
     // region zmienne
     const [Ean, setEan] = useState<string>("")
+    const [prodName, setProdName] = useState<string>("")
+    const [selectedEan, setSelectedEan] = useState<string>("")
 
     const [componentHashTable, setComponentHashTable] = useState<Map<hurtNames, ReactNode>>(new Map<hurtNames, ReactNode>())
 
@@ -42,6 +45,11 @@ export default function MainSite() {
 
     const [optItems, setOptItems] = useState<IItemInstance[]>([])
     const [allResult, setAllResult] = useState<IAllResult[]>([])
+
+    const [open, setOpen] = useState<boolean>(false);
+    const [agreement, setAgreement] = useState<boolean>(false)
+
+
 
 
     const [fileName, setFileName] = useState<string>("")
@@ -82,8 +90,9 @@ export default function MainSite() {
     }, [onDrop, onDragOver]);
     // endregion
 
-    const changeResultComp = (ean: string) => {
+    const changeResultComp = (ean: string, name: string) => {
         const newComponentHashTable = new Map<hurtNames, ReactNode>()
+        setSelectedEan(ean)
 
         if (allResult.filter((item) => item.ean === ean).length === 0) {
             newComponentHashTable.set(hurtNames.none,
@@ -93,20 +102,22 @@ export default function MainSite() {
                     princeForOne={-1}
                     productsInPack={-1}/>
             )
-        }
+            setProdName("brak produktu")
+        } else {
+            allResult.filter((item) => item.ean === ean).map((newItem) => {
 
-        allResult.filter((item) => item.ean === ean).map((newItem) => {
-
-            newItem.result.filter(i => i.Item.priceForOne !== -1).map((newItem) => {
-                newComponentHashTable.set(newItem.hurtName,
-                    <HurtResultForm
-                        name={hurtNames[newItem.hurtName]}
-                        priceForPack={newItem.Item.priceForPack}
-                        princeForOne={newItem.Item.priceForOne}
-                        productsInPack={newItem.Item.productsInPack}/>
-                )
+                newItem.result.filter(i => i.Item.priceForOne !== -1).map((newItem) => {
+                    newComponentHashTable.set(newItem.hurtName,
+                        <HurtResultForm
+                            name={hurtNames[newItem.hurtName]}
+                            priceForPack={newItem.Item.priceForPack}
+                            princeForOne={newItem.Item.priceForOne}
+                            productsInPack={newItem.Item.productsInPack}/>
+                    )
+                })
             })
-        })
+            setProdName(name)
+        }
         setComponentHashTable(newComponentHashTable)
     }
 
@@ -120,7 +131,7 @@ export default function MainSite() {
         try {
             getMultipleHurtResult(prodToSearch).then(data => {
 
-                if (typeof(data)=="string"){
+                if (typeof (data) == "string") {
                     setErrorMessage(data)
                     setIsLoadingProduct(false)
                     return
@@ -156,6 +167,7 @@ export default function MainSite() {
                             name: item.Name,
                             ean: item.Ean,
                             item: {
+                                name: item.Name,
                                 hurtName: hurtNames.none,
                                 priceForPack: -1,
                                 priceForOne: -1,
@@ -168,8 +180,9 @@ export default function MainSite() {
                 setOptItems(newOptItems)
                 setAllResult(newAllResult)
                 setIsLoadingProduct(false)
+                changeResultComp(prodToSearch[0].Ean,prodToSearch[0].Name)
             })
-        } catch (e: any){
+        } catch (e: any) {
             setErrorMessage(e.message)
             setIsLoadingProduct(false)
         }
@@ -177,10 +190,16 @@ export default function MainSite() {
     }, [prodToSearch])
 
     useEffect(() => {
-        fetchWithAuth("/api/messages").then(response =>{
+        if (agreement){
+
+        }
+    }, [agreement]);
+
+    useEffect(() => {
+        fetchWithAuth("/api/messages").then(response => {
             return response.json()
         }).then(data => {
-            if (data.message==""){
+            if (data.message == "") {
                 return
             }
             setMessageFromBackend(data.message)
@@ -188,66 +207,86 @@ export default function MainSite() {
         })
     }, []) //pobieranie wiadomości
 
+
+    {/*sx={{
+                width: '100%',
+                typography: 'body1',
+                padding: "30px 10px",
+                margin: "30px auto",
+                borderRadius: "20px",
+                backgroundColor: "#363636"
+            }}}*/}
+
     return (
         <>
-            <h1>skanuj pojedyńczo</h1>
+            <Box>
+            <h1>Witaj {localStorage.getItem("companyName")}!</h1>
             <p></p>
+            <Box sx={{display: "flex", justifyContent: "space-around"}}>
+                <TextField sx={{width: "45%"}} autoComplete={"off"} id="filled" label="skanuj pojedynczo"
+                           placeholder="kod Ean" value={Ean}
+                           onChange={e => setEan(e.target.value)} onKeyDown={e => {
+                    if (e.key === "Enter") {
+                        setIsLoadingProduct(true)
+                        try {
+                            getHurtResult(Ean).then(data => {
 
-            <TextField autoComplete={"off"} id="filled" label="Kod Ean" placeholder="Ean" value={Ean}
-                       onChange={e => setEan(e.target.value)} onKeyDown={e => {
-                if (e.key === "Enter") {
-                    setIsLoadingProduct(true)
-                    try {
-                        getHurtResult(Ean).then(data => {
+                                if (typeof (data) === "string") {
+                                    setProdName("brak Produktu")
+                                    setErrorMessage(data)
+                                    setIsLoadingProduct(false)
+                                    return
+                                }
 
-                            if (typeof (data) === "string"){
-                                setErrorMessage(data)
-                                setIsLoadingProduct(false)
-                                return
-                            }
-
-                            const newMap = new Map<hurtNames, ReactNode>()
-                            let i = 0
-                            data.map((item) => {
-                                if (item.priceForOne !== -1) {
-                                    i += 1
-                                    newMap.set(item.hurtName, (
+                                const newMap = new Map<hurtNames, ReactNode>()
+                                let i = 0
+                                data.map((item) => {
+                                    if (item.priceForOne !== -1) {
+                                        setProdName(item.name)
+                                        i += 1
+                                        newMap.set(item.hurtName, (
+                                            <HurtResultForm
+                                                name={hurtNames[item.hurtName]}
+                                                priceForPack={item.priceForPack}
+                                                princeForOne={item.priceForOne}
+                                                productsInPack={item.productsInPack}
+                                            />
+                                        ))
+                                    }
+                                })
+                                if (i === 0) {
+                                    setProdName("brak produktu")
+                                    newMap.set(hurtNames.none, (
                                         <HurtResultForm
-                                            name={hurtNames[item.hurtName]}
-                                            priceForPack={item.priceForPack}
-                                            princeForOne={item.priceForOne}
-                                            productsInPack={item.productsInPack}
+                                            name={hurtNames[hurtNames.none]}
+                                            priceForPack={-1}
+                                            princeForOne={-1}
+                                            productsInPack={-1}
                                         />
                                     ))
+                                } else {
+                                    setComponentHashTable(newMap)
                                 }
-                            })
-                            if (i === 0) {
-                                newMap.set(hurtNames.none, (
-                                    <HurtResultForm
-                                        name={hurtNames[hurtNames.none]}
-                                        priceForPack={-1}
-                                        princeForOne={-1}
-                                        productsInPack={-1}
-                                    />
-                                ))
-                            } else {
-                                setComponentHashTable(newMap)
-                            }
 
+                                setIsLoadingProduct(false)
+                            });
+                        } catch (e: any) {
+                            setErrorMessage(e.message)
                             setIsLoadingProduct(false)
-                        });
-                    }catch (e: any){
-                        setErrorMessage(e.message)
-                        setIsLoadingProduct(false)
+                        }
                     }
-                }}}
-            />
+                }}
+                />
 
+                <TextField sx={{width: "45%"}} disabled autoComplete={"off"} id="filled-disabled"
+                           label="nazwa produktu" value={prodName}/>
+
+            </Box>
             <p></p>
-            <Box style={{display: "flex", justifyContent: "space-around", alignItems: "center"}}>
+            <Box style={{display: "flex", alignItems: "flex-start",justifyContent: "space-around"}}>
                 {!isLoadingProduct ? (
                     <div className={"hurtResults"}
-                         style={{margin: "10px", padding: "10px", display: "grid", gap: "10px"}}>
+                         style={{width: "45%", display: "grid", gap: "10px"}}>
                         {
                             Array.from(componentHashTable.values()).map((element) => {
                                 return element
@@ -259,18 +298,29 @@ export default function MainSite() {
                     <CircularProgress/>
                 </Box>
                 }
-                <List component="nav"
-                      sx={{width: "20%", overflow: "scroll", scrollbarWidth: "none", maxHeight: "600px"}}>
-                    {prodToSearch.map((item) => {
-                        return (
-                            <ListItemButton onClick={() => {
-                                changeResultComp(item.Ean)
-                            }}>
-                                <ListItemText primary={item.Name}/>
-                            </ListItemButton>
-                        )
-                    })}
-                </List>
+                {
+                    prodToSearch.length === 0 || isLoadingProduct ?
+                        <></>
+                        :
+                        <List component="nav"
+                              sx={{width: "45%", overflow: "scroll", maxHeight: "600px", overflowX: "hidden"}}>
+                            {prodToSearch.map((item,index ) => {
+                                return (
+                                    <ListItemButton
+                                        selected={item.Ean === selectedEan}
+                                        onClick={() => {
+                                            changeResultComp(item.Ean, item.Name)
+                                        }}>
+                                        <ListItemAvatar>
+                                            <Avatar>{index + 1}</Avatar>
+                                        </ListItemAvatar>
+                                        <ListItemText primary={item.Name}/>
+                                    </ListItemButton>
+                                )
+                            })}
+                        </List>
+                }
+
 
             </Box>
             <Button sx={{margin: "20px", padding: "5px"}}
@@ -279,42 +329,10 @@ export default function MainSite() {
             }}>Wyczyść Listę</Button>
             {optItems.length !== 0 ?
                 <Button variant="contained" color="success" sx={{margin: "20px", padding: "5px"}} onClick={() => {
-                    setErrorMessage("")
-                    fetchWithAuth("/api/makeOrder", {
-                        method: "POST",
-                        body: JSON.stringify({Items: optItems.map(item => {
-                            return {
-                                Ean: item.ean,
-                                Amount: item.count,
-                                HurtName: item.item.hurtName
-                            }
-                            })}),
-                        headers: {
-                            "Content-Type": "application/json",
-                        }
-
-                    }).then(response => {
-                        if (response.status !== 200) {
-                            throw new Error("nie udało się złożyć zamówienia")
-                        }
-                        return response.json()
-                    }).then(data => {
-
-                        if (data.error != undefined){
-                            setMessageFromBackend(data.error)
-                            setOpenSnackbar(true)
-                            return
-                        }
-
-                        setMessageFromBackend("udało sie złożyć zamówienie")
-
-                    }).catch(err => {
-                        setErrorMessage(err)
-                        throw new Error(err);
-                    })
+                    setOpen(true)
                 }}>
-                    Rozdziel produkty do koszyka
-                </Button> : null}
+                    dodaj produkty do koszyków w hurtowniach
+                </Button> : <></>}
             {errorMessage !== "" ?
                 <Alert severity="error">
                     <AlertTitle>Error</AlertTitle>
@@ -331,16 +349,42 @@ export default function MainSite() {
             <InputComp setItem={prod => setProdToSearch(prod)} setName={name => setFileName(name)}/>
 
 
+
+                <Dialog
+                    open={open}
+                    onClose={()=>{setOpen(false)}}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {"Use Google's location service?"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            czy wyrażasz zgodę na dodanie produktów do koszyka, spowoduje to usunięcie aktualnego koszyka
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={()=> {setOpen(false);setAgreement(false)}}
+                        >Disagree</Button>
+                        <Button onClick={()=>{setOpen(false); setAgreement(true)}} autoFocus>
+                            Agree
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+
+
             <Snackbar
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                anchorOrigin={{vertical: 'top', horizontal: 'center'}}
                 open={openSnackbar}
-                onClose={()=> {
+                onClose={() => {
                     setOpenSnackbar(false)
                     setMessageFromBackend("")
                 }}
                 message={messageFromBackend}
             />
-
+            </Box>
         </>
     )
 }

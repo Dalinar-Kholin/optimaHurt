@@ -112,7 +112,7 @@ func Login(c *gin.Context) {
 		"username": reqBody.Username,
 		"password": reqBody.Password,
 	}).Decode(&dataBaseResponse); err != nil {
-		c.JSON(200, gin.H{"error": "bad credentials"})
+		c.JSON(200, gin.H{"error": "nieprawidłowe dane"})
 		return
 	}
 
@@ -132,6 +132,7 @@ func Login(c *gin.Context) {
 		"token":          shieldedToken,
 		"availableHurts": loggedHurts,
 		"accountStatus":  dataBaseResponse.AccountStatus,
+		"companyName":    dataBaseResponse.CompanyData.Name,
 	})
 }
 

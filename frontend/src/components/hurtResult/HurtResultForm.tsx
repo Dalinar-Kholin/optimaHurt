@@ -1,6 +1,5 @@
 import {TextField} from "@mui/material";
-import "./hurtResult.css"
-
+import Box from "@mui/material/Box";
 interface IHurtResultForm {
     name: string,
     princeForOne: number,
@@ -11,8 +10,7 @@ interface IHurtResultForm {
 export default function HurtResultForm({name, princeForOne, priceForPack, productsInPack}: IHurtResultForm) {
     return (
         <>
-            <div className={"masterHurtDiv"} >
-                <div className={"hurtResultDiv"}>
+            <Box sx={{display: "flex", gap: "10px", justifyContent: "space-around"}} >
                     <TextField
                         disabled
                         id="outlined-disabled"
@@ -31,8 +29,7 @@ export default function HurtResultForm({name, princeForOne, priceForPack, produc
                         label={"Cena za " + (productsInPack === -1 ? "" : productsInPack)}
                         value={priceForPack === -1 ? "Brak produktu" : priceForPack.toFixed(2)}
                     />
-                </div>
-            </div>
+            </Box>
         </>
     )
 }

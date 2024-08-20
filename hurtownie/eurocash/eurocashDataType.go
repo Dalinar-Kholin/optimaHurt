@@ -11,6 +11,7 @@ type Data struct {
 }
 
 type EurocashItem struct {
+	Name            string  `json:"Szukaj"`
 	CenaBudzet      float64 `json:"CenaBudzet"`      // licznenie optymalności
 	SposobPakowania float64 `json:"SposobPakowania"` // dodawanie do koszyka
 }

@@ -1,6 +1,7 @@
 package account
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 	"go.mongodb.org/mongo-driver/bson"
@@ -41,7 +42,7 @@ func ChangeUserData(c *gin.Context) {
 	err := reader.Decode(&data)
 	if err != nil {
 		c.JSON(200, gin.H{
-			"error": "bad request",
+			"error": "złe dane",
 		})
 		return
 	}
@@ -99,7 +100,7 @@ func ChangeUserData(c *gin.Context) {
 			"_id": userInstance.Id,
 		}, dataBaseUser).Decode(&id)
 		if err != nil {
-			return err
+			return errors.New("nie znaleziono użytkownika")
 		}
 		return nil
 	})
@@ -112,10 +113,13 @@ func ChangeUserData(c *gin.Context) {
 	}
 	if err := session.CommitTransaction(ContextBackground); err != nil {
 		c.JSON(500, gin.H{
-			"error": "cant finish Transaction",
+			"error": "server error",
 		})
 		return
 	}
-	c.Status(200)
+	delete(Users, auth)
+	c.JSON(200, gin.H{
+		"result": "udało się dodać hasło",
+	})
 	return
 }

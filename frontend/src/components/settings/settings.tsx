@@ -3,7 +3,7 @@ import HurtSetting from "./hurtSetting/hurtSetting.tsx";
 import {SyntheticEvent, useState} from "react";
 import Box from "@mui/material/Box";
 import TabContext from '@mui/lab/TabContext';
-import {Alert, Button, Tab} from "@mui/material";
+import { Button, Snackbar, Tab} from "@mui/material";
 import {TabList, TabPanel} from "@mui/lab";
 import {hurtNames} from "../../interfaces.ts";
 import fetchWithAuth from "../../typeScriptFunc/fetchWithAuth.ts";
@@ -14,9 +14,7 @@ export interface INewDataHurt{
     hurtName : hurtNames
 }
 
-export interface INewAccountData{
 
-}
 
 export interface INewCompanyData{
 
@@ -25,12 +23,13 @@ export interface INewCompanyData{
 export default function SettingPage(){
     const [value, setValue] = useState('2');
 
+    const [openSnackbar, setOpenSnackbar] = useState<boolean>(false)
+    const [snackbarMessage, setSnackbarMessage] = useState<string>("")
+
     const [newHurtData, setNewHurtData] = useState<INewDataHurt[]>([])
     const [newAccountData, setNewAccountData] = useState<string>("")
     const [_newCompanyData, _setNewCompanyData] = useState<INewCompanyData[]>([])
 
-    const [showAlert, setShowAlert] = useState<boolean>(false)
-    const [isProper, setIsProper] = useState<boolean>(false)
     const handleChange = (_event: SyntheticEvent, newValue: string) => {
         setValue(newValue);
     };
@@ -81,22 +80,36 @@ export default function SettingPage(){
                         if (response.status!== 200){
                             throw new Error("dupa")
                         }
-                        setShowAlert(true)
-                        setIsProper(true)
+                        return response.json()
+
+                    }).then((data) => {
+                        if (data.error!==undefined){
+                            setSnackbarMessage("nie udało się zapisać danych")
+                            setOpenSnackbar(true)
+                            return
+                        }
+                        setSnackbarMessage("udało się zapisać dane")
+                        setOpenSnackbar(true)
+
+
                     }).catch( ()=> {
-                        setShowAlert(true)
-                        setIsProper(false)
                     })
 
 
                 }}> zapisz zmiany</Button> : <></>}
 
-                {!showAlert? <></> : isProper ? <Alert variant="filled" severity="success">
-                    udało się zapisać dane
-                </Alert> : <Alert variant="filled" severity="error">
-                    nie udało się zapisać danych
-                </Alert>}
+
             </Box>
+
+            <Snackbar
+                anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+                open={openSnackbar}
+                onClose={() => {
+                    setOpenSnackbar(false)
+                    setSnackbarMessage("")
+                }}
+                message={snackbarMessage}
+            />
 
         </>
     )

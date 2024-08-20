@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"optimaHurt/hurtownie"
 	"optimaHurt/hurtownie/factory"
-	"optimaHurt/stringCheckers"
 )
 
 type DataToCheck struct {
@@ -21,12 +20,6 @@ func CheckCredentials(c *gin.Context) {
 	decoder := json.NewDecoder(c.Request.Body)
 	err := decoder.Decode(&Creds)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"error": "bad Request Body",
-		})
-		return
-	}
-	if err := stringCheckers.CheckUsername(Creds.Username); err != nil {
 		c.JSON(200, gin.H{
 			"error": "bad Request Body",
 		})
@@ -48,11 +41,13 @@ func CheckCredentials(c *gin.Context) {
 
 	if !res {
 		c.JSON(200, gin.H{
-			"error": "bad Credentials",
+			"error": "nie znaleziono konta dla podanych danych",
 		})
 		return
 	}
 	/*ICOM:  wiemy że dane sa prawidłowe, teraz na frontendzie dodamy je do poprawnych i użytkownik przy zapisywaniu zmian prześle wszystkie poprawne dane ograniczamy tym ilość zapytań do bazy danych które są wolne i drogie*/
-	c.Status(200)
+	c.JSON(200, gin.H{
+		"result": "udao się dodać hasło",
+	})
 
 }

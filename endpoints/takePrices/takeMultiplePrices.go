@@ -22,7 +22,7 @@ func TakeMultiple(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(200, gin.H{
-			"error": "bad list",
+			"error": "złe dane",
 		})
 		return
 	}

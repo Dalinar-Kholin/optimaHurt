@@ -23,6 +23,7 @@ export function handleResults({name }: IHandleResults): (x : any) => IHurtInfoFo
         default:
             return (_x : any): IHurtInfoForComp=>{
                 return {
+                    name: "none",
                     hurtName: hurtNames.none,
                     priceForPack: -1,
                     priceForOne : -1,

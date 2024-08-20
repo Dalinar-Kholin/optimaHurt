@@ -9,6 +9,7 @@ export function handleSpecialAndSot(name: hurtNames) {
     return (serverResponse: any) : IHurtInfoForComp => {
         if (serverResponse === null || serverResponse=== -1 ){
             return {
+                name: "",
                 hurtName: name,
                 priceForPack: -1,
                 priceForOne: -1,
@@ -19,6 +20,7 @@ export function handleSpecialAndSot(name: hurtNames) {
             const priceForOneItem = serverResponse.pozycje[0].cenaNettoOstateczna;
             const productInPack = (Math.ceil(1 / pack) * pack);
             return {
+                name: serverResponse.pozycje[0].nazwa,
                 hurtName: name,
                 priceForOne: priceForOneItem,
                 productsInPack: productInPack,

@@ -23,7 +23,7 @@ func EndSubscription(c *gin.Context) {
 	}).Decode(&stripeInfo); err != nil {
 		fmt.Printf("error przy anulowaniu subskrypcji := %v", err.Error())
 		c.JSON(500, gin.H{
-			"message": "server stupido",
+			"error": "server stupido",
 		})
 		return
 	}
@@ -33,7 +33,7 @@ func EndSubscription(c *gin.Context) {
 	if err != nil {
 		fmt.Printf("error przy anulowaniu subskrypcji := %v\n", err.Error())
 		c.JSON(500, gin.H{
-			"message": "cant update subscription",
+			"error": "cant update subscription",
 		})
 		return
 	}

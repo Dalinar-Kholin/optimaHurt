@@ -5,6 +5,7 @@ import round from "./handleSot.ts";
 export function handleTedi() {
     return (serverResponse: any) : IHurtInfoForComp => {
         const noProd = {
+            name : "",
             hurtName: hurtNames.tedi,
             priceForPack: -1,
             priceForOne: -1,
@@ -29,6 +30,7 @@ export function handleTedi() {
             const priceForOneItem = +(res.final_price);
             const productInPack = (Math.ceil(1 / pack) * pack);
             return {
+                name : res.name,
                 hurtName: hurtNames.tedi,
                 priceForOne: priceForOneItem,
                 productsInPack: productInPack,

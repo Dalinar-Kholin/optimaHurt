@@ -34,7 +34,7 @@ type SotAndSpecjalTokenResponse struct {
 type SotAndSpecjalResponse struct {
 	DataOferty time.Time `json:"dataOferty"`
 	Pozycje    []struct {
-		Nazwa               string  `json:"nazwa"`
+		Name                string  `json:"nazwa"`
 		IlOpkZb             int     `json:"ilOpkZb"`
 		CenaNettoOstateczna float64 `json:"cenaNettoOstateczna"`
 	} `json:"pozycje"`

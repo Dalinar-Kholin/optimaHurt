@@ -7,6 +7,7 @@ export function handleEurocash(){
 
         if (serverResponse === null ||  serverResponse.Data.TotalCount ===0){
             return {
+                name:"",
                 hurtName: hurtNames.eurocash,
                 priceForPack: -1,
                 priceForOne : -1,
@@ -17,6 +18,7 @@ export function handleEurocash(){
             const priceForOneItem = serverResponse.Data.Items[0].CenaBudzet;
             const productInPack = (Math.ceil(1 / pack) * pack);
             return {
+                name: serverResponse.Data.Items[0].Szukaj,
                 hurtName: hurtNames.eurocash,
                 priceForOne: priceForOneItem,
                 productsInPack: productInPack,

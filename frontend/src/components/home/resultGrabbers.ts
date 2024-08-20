@@ -3,7 +3,8 @@ import {handleResults} from "./handleResult/handleResults.ts";
 import {hurtNames, IItemToSearch} from "../../interfaces.ts";
 import fetchWithAuth from "../../typeScriptFunc/fetchWithAuth.ts";
 
-export function getHurtResult(Ean: string): Promise<IHurtInfoForComp[] | string> {
+
+export function getHurtResult(Ean: string): Promise<IHurtInfoForComp[] | string>  {
     const url = "/api/takePrice?" + new URLSearchParams({ean: Ean});
 
 
@@ -23,6 +24,8 @@ export function getHurtResult(Ean: string): Promise<IHurtInfoForComp[] | string>
         data.forEach((element: any) => {
             newData.push( handleResults({name: element.hurtName})(element.result));
         });
+
+
         return newData;
     }).catch(err => {
         throw new Error(err);

@@ -36,7 +36,7 @@ func ForgotPassword(c *gin.Context) {
 		"email": email,
 	}).Decode(&userInDb); err != nil {
 		c.JSON(200, gin.H{
-			"error": "bad email",
+			"error": "zły adres mail",
 		})
 		return
 	}

@@ -24,6 +24,7 @@ type Stock struct {
 
 // Result represents a single product result in the JSON.
 type Result struct {
+	Name                        string  `json:"name"`
 	CumulativeUnitRatioSplitter string  `json:"cumulative_unit_ratio_splitter"`
 	LogisticMinimum             string  `json:"logistic_minimum"`
 	IsVisible                   bool    `json:"is_visible"`

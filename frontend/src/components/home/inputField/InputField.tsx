@@ -46,7 +46,7 @@ export default function InputComp({setItem,setName}: IInputField){
                 />
                 <label htmlFor="file-input">
                     <Button variant="contained" color="primary" component="span">
-                        kliknij i wybierz plik, lub zrzuć plik na stroone
+                        kliknij i wybierz plik, lub zrzuć plik na stronę
                     </Button>
                 </label>
             </Box>
