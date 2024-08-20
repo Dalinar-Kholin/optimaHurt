@@ -55,7 +55,7 @@ function App() {
                         <Route path={"/strona główna"} element={<MainSite/>}/>
                         <Route path={"/cennik"} element={<Tariff/>}/>
                         <Route path={"/ustawienia"} element={<SettingPage/>}/>
-                        <Route path={"/*"} element={<Navigate to={"/main"}/>}/>
+                        <Route path={"/*"} element={<Navigate to={"/strona główna"}/>}/>
                         <Route path={"/failed"} element={<FailedLoginPage/>}/>
                         <Route path={"/signIn"} element={<SignIn/>} />
                         <Route path={"/płatności"} element={<PaymentComp/>}/>

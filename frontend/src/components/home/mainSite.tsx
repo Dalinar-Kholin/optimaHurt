@@ -102,7 +102,6 @@ export default function MainSite() {
                     princeForOne={-1}
                     productsInPack={-1}/>
             )
-            setProdName("brak produktu")
         } else {
             allResult.filter((item) => item.ean === ean).map((newItem) => {
 
@@ -116,8 +115,8 @@ export default function MainSite() {
                     )
                 })
             })
-            setProdName(name)
         }
+        setProdName(name)
         setComponentHashTable(newComponentHashTable)
     }
 
@@ -366,9 +365,9 @@ export default function MainSite() {
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={()=> {setOpen(false);setAgreement(false)}}
-                        >Disagree</Button>
+                        >nie zgadzam się</Button>
                         <Button onClick={()=>{setOpen(false); setAgreement(true)}} autoFocus>
-                            Agree
+                            Zgoda
                         </Button>
                     </DialogActions>
                 </Dialog>
