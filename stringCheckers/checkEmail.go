@@ -12,7 +12,11 @@ func CheckEmail(email string) error {
 	if len(email) < 10 {
 		return errors.New("email to short")
 	}
-	if !strings.Contains(email, "@") || strings.ContainsAny(email, "(),:;<>@\"[\\] ") {
+
+	if strings.Count(email, "@") != 1 {
+		return errors.New("bac @ count")
+	}
+	if !strings.Contains(email, "@") || strings.ContainsAny(email, "(),:;<>\"[\\] ") {
 		return errors.New("bad email syntax")
 	}
 

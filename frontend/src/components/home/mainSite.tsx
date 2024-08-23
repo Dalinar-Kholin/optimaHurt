@@ -356,7 +356,7 @@ export default function MainSite() {
                     aria-describedby="alert-dialog-description"
                 >
                     <DialogTitle id="alert-dialog-title">
-                        {"Use Google's location service?"}
+                        {"Czy dodać produkty do koszyka?"}
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">

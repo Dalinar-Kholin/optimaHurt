@@ -84,7 +84,7 @@ export default function SettingPage(){
 
                     }).then((data) => {
                         if (data.error!==undefined){
-                            setSnackbarMessage("nie udało się zapisać danych")
+                            setSnackbarMessage(data.error)
                             setOpenSnackbar(true)
                             return
                         }
