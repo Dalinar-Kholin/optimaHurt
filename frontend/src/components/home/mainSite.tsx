@@ -189,8 +189,32 @@ export default function MainSite() {
     }, [prodToSearch])
 
     useEffect(() => {
-        if (agreement){
+        if (agreement && optItems.length!==0){
+            setErrorMessage("")
+            fetchWithAuth("/api/makeOrder", {
+                method: "POST",
+                body: JSON.stringify({Items: optItems.map(item => {
+                        return {
+                            Ean: item.ean,
+                            Amount: item.count,
+                            HurtName: item.item.hurtName
+                        }
+                    })}),
+                headers: {
+                    "Content-Type": "application/json",
+                }
 
+            }).then(response => {
+                if (response.status !== 200) {
+                    throw new Error("nie udało się złożyć zamówienia")
+                }
+                return response.json()
+            }).then(data => {
+                console.log(data)
+            }).catch(err => {
+                setErrorMessage(err)
+                throw new Error(err);
+            })
         }
     }, [agreement]);
 
@@ -364,9 +388,14 @@ export default function MainSite() {
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={()=> {setOpen(false);setAgreement(false)}}
+                        <Button onClick={()=> {
+                            setAgreement(false)
+                            setOpen(false)}}
                         >nie zgadzam się</Button>
-                        <Button onClick={()=>{setOpen(false); setAgreement(true)}} autoFocus>
+                        <Button onClick={()=>{
+                            setAgreement(true)
+                            setOpen(false)
+                            }} autoFocus>
                             Zgoda
                         </Button>
                     </DialogActions>
