@@ -65,7 +65,7 @@ export default function HurtComp({name, fn} : IHurtComp){
                            onChange={(e)=>{
                     setUsername(e.target.value)
                 }}></TextField>
-                <TextField value={password}  autoComplete={"off"} label={"password"} onChange={(e)=>{
+                <TextField value={password} type="password"  autoComplete={"off"} label={"password"} onChange={(e)=>{
                     setPassword(e.target.value)
                 }}
                         onKeyDown={(e) => handleClick(e)}

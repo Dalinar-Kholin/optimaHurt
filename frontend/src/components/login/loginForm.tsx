@@ -77,7 +77,7 @@ export default function LoginForm(){
                 <TextField
                     id="outlined-password-input"
                     label="hasło"
-                    type="hasło"
+                    type="password"
                     autoComplete="current-password"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
