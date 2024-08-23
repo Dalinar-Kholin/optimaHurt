@@ -123,7 +123,7 @@ func SignIn(c *gin.Context) {
 				Nr:     reqData.Nr,
 			},
 		},
-		AccountStatus: user.New,
+		AccountStatus: user.Active,
 	}
 
 	if _, err := connection.InsertOne(ContextBackground, newUser); err != nil {
@@ -132,9 +132,11 @@ func SignIn(c *gin.Context) {
 		})
 		return
 	}
-	message := user.UserMessage{UserId: newUser.Id, Message: "aby odblokować możliwość sprawdzania przejdź do płatności i rozpocznij okres próbny"}
+	//ICOM: Na razie każdy może korzystać ile chce bez problemu
 
-	_, _ = DbConnect.Collection(UserMessageCollection).InsertOne(ContextBackground, message)
+	// message := user.UserMessage{UserId: newUser.Id, Message: "aby odblokować możliwość sprawdzania przejdź do płatności i rozpocznij okres próbny"}
+
+	//_, _ = DbConnect.Collection(UserMessageCollection).InsertOne(ContextBackground, message)
 
 	c.JSON(200, gin.H{
 		"result": "dodano użytkownika",
