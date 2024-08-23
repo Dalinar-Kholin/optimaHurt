@@ -215,7 +215,10 @@ export default function MainSite() {
                 setErrorMessage(err)
                 throw new Error(err);
             })
+
         }
+        setAgreement(false)
+
     }, [agreement]);
 
     useEffect(() => {
