@@ -47,7 +47,6 @@ func (s *Sot) RefreshTokenFunc(client *http.Client) bool {
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	req.Header.Add("Accept-Language", "en-US,en;q=0.5")
 	req.Header.Add("Connection", "keep-alive")
-	req.Header.Add("Content-Length", strconv.Itoa(len(body)))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Host", "sso.infinite.pl")
 	req.Header.Add("Origin", "https://sot.ehurtownia.pl")

@@ -4,10 +4,12 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"io"
 	"net/http"
+	"net/url"
 	. "optimaHurt/constAndVars"
 	"optimaHurt/hurtownie"
 	"optimaHurt/hurtownie/factory"
@@ -21,7 +23,19 @@ func makeNewUser(dbUser user.DataBaseUserObject) (userInstance *user.User, avail
 
 	var wg sync.WaitGroup
 
+	proxyURL, err := url.Parse("http://127.0.0.1:8000")
+	if err != nil {
+		fmt.Println("Błąd parsowania URL proxy:", err)
+		return
+	}
+
+	// Konfiguracja Transport z Proxy
+	transport := &http.Transport{
+		Proxy: http.ProxyURL(proxyURL),
+	}
+
 	client := &http.Client{
+		Transport: transport,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},

@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"optimaHurt/hurtownie"
-	"strconv"
 	"strings"
 )
 
@@ -63,8 +62,6 @@ func secondRequest(client *http.Client, cookies []*http.Cookie, sessionCode, exe
 	req.Header.Add("Sec-Fetch-Mode", "navigate")
 	req.Header.Add("Sec-Fetch-Site", "same-origin")
 	req.Header.Add("Sec-Fetch-User", "?1")
-	req.Header.Add("Content-Length", strconv.Itoa(len(body)))
-
 	for _, cookie := range cookies {
 		req.AddCookie(cookie)
 	}
@@ -133,7 +130,6 @@ func tokenRequest(client *http.Client, cookies []*http.Cookie, code string) hurt
 	req.Header.Set("Accept", "*/*")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.5")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Content-Length", strconv.Itoa(len(requestBody)))
 	req.Header.Set("Referer", "https://nowaspecjal.ehurtownia.pl")
 	req.Header.Set("Origin", "https://nowaspecjal.ehurtownia.pl")
 	req.Header.Set("Sec-Fetch-Dest", "empty")

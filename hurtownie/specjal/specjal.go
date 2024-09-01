@@ -35,7 +35,6 @@ func (s *Specjal) RefreshToken(client *http.Client) bool {
 	req.Header.Set("Accept", "*/*")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.5")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Content-Length", strconv.Itoa(len(body)))
 	req.Header.Set("Referer", "https://nowaspecjal.ehurtownia.pl")
 	req.Header.Set("Origin", "https://nowaspecjal.ehurtownia.pl")
 	req.Header.Set("Sec-Fetch-Dest", "empty")

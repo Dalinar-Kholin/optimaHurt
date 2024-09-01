@@ -105,7 +105,7 @@ export default function MainSite() {
         } else {
             allResult.filter((item) => item.ean === ean).map((newItem) => {
 
-                newItem.result.filter(i => i.Item.priceForOne !== -1).map((newItem) => {
+                newItem.result.map((newItem) => {
                     newComponentHashTable.set(newItem.hurtName,
                         <HurtResultForm
                             name={hurtNames[newItem.hurtName]}
@@ -120,6 +120,52 @@ export default function MainSite() {
         setComponentHashTable(newComponentHashTable)
     }
 
+    const searchOneProd = () => {
+        setIsLoadingProduct(true)
+        try {
+            getHurtResult(Ean).then(data => {
+                if (typeof (data) === "string") {
+                    setProdName("brak Produktu")
+                    setErrorMessage(data)
+                    setIsLoadingProduct(false)
+                    return
+                }
+
+                const newMap = new Map<hurtNames, ReactNode>()
+                let i = 0
+                data.map((item) => {
+                        setProdName(item.name)
+                        i += 1
+                        newMap.set(item.hurtName, (
+                            <HurtResultForm
+                                name={hurtNames[item.hurtName]}
+                                priceForPack={item.priceForPack}
+                                princeForOne={item.priceForOne}
+                                productsInPack={item.productsInPack}
+                            />
+                        ))
+                })
+                if (i === 0) {
+                    setProdName("brak produktu")
+                    newMap.set(hurtNames.none, (
+                        <HurtResultForm
+                            name={hurtNames[hurtNames.none]}
+                            priceForPack={-1}
+                            princeForOne={-1}
+                            productsInPack={-1}
+                        />
+                    ))
+                } else {
+                    setComponentHashTable(newMap)
+                }
+
+                setIsLoadingProduct(false)
+            });
+        } catch (e: any) {
+            setErrorMessage(e.message)
+            setIsLoadingProduct(false)
+        }
+    }
 
     useEffect(() => {
         if (prodToSearch.length === 0) {
@@ -141,20 +187,15 @@ export default function MainSite() {
                 prodToSearch.map((item) => {
                     const ItemsMatchEan = data.get(item.Ean)
                     if (ItemsMatchEan) {
-                        const newMin = ItemsMatchEan.filter((element) => {
-                            return element.Item.priceForOne !== -1
-                        })
-                        if (!newMin || newMin.length === 0) {
-                            return;
-                        }
 
-                        const xd = newMin.reduce((prev, current) => {
+
+                        const optimalItem = ItemsMatchEan.reduce((prev, current) => {
                             return prev.Item.priceForOne < current.Item.priceForOne ? prev : current
                         })
                         newOptItems.push({
                             name: item.Name,
                             ean: item.Ean,
-                            item: xd.Item,
+                            item: optimalItem.Item,
                             count: item.Amount,
                         })
                         newAllResult.push({
@@ -246,62 +287,23 @@ export default function MainSite() {
     return (
         <>
             <Box>
-            <h1>Witaj {localStorage.getItem("companyName")}!</h1>
+            <h1>Witaj w optimaHurt!{/*{localStorage.getItem("companyName")}*/}</h1>
             <p></p>
             <Box sx={{display: "flex", justifyContent: "space-around"}}>
-                <TextField sx={{width: "45%"}} autoComplete={"off"} id="filled" label="skanuj pojedynczo"
-                           placeholder="kod Ean" value={Ean}
-                           onChange={e => setEan(e.target.value)} onKeyDown={e => {
-                    if (e.key === "Enter") {
-                        setIsLoadingProduct(true)
-                        try {
-                            getHurtResult(Ean).then(data => {
-                                if (typeof (data) === "string") {
-                                    setProdName("brak Produktu")
-                                    setErrorMessage(data)
-                                    setIsLoadingProduct(false)
-                                    return
-                                }
-
-                                const newMap = new Map<hurtNames, ReactNode>()
-                                let i = 0
-                                data.map((item) => {
-                                    if (item.priceForOne !== -1) {
-                                        setProdName(item.name)
-                                        i += 1
-                                        newMap.set(item.hurtName, (
-                                            <HurtResultForm
-                                                name={hurtNames[item.hurtName]}
-                                                priceForPack={item.priceForPack}
-                                                princeForOne={item.priceForOne}
-                                                productsInPack={item.productsInPack}
-                                            />
-                                        ))
-                                    }
-                                })
-                                if (i === 0) {
-                                    setProdName("brak produktu")
-                                    newMap.set(hurtNames.none, (
-                                        <HurtResultForm
-                                            name={hurtNames[hurtNames.none]}
-                                            priceForPack={-1}
-                                            princeForOne={-1}
-                                            productsInPack={-1}
-                                        />
-                                    ))
-                                } else {
-                                    setComponentHashTable(newMap)
-                                }
-
-                                setIsLoadingProduct(false)
-                            });
-                        } catch (e: any) {
-                            setErrorMessage(e.message)
-                            setIsLoadingProduct(false)
+                <Box sx={{width: "45%", display: "flex", justifyContent: "center"}}>
+                    <TextField autoComplete={"off"} id="filled" label="skanuj pojedynczo"
+                               placeholder="kod Ean" value={Ean}
+                               onChange={e => setEan(e.target.value)} onKeyDown={e => {
+                        if (e.key === "Enter") {
+                            searchOneProd()
                         }
-                    }
-                }}
-                />
+                    }}
+                    />
+
+                    <Button onClick={searchOneProd}>szukaj</Button>
+
+                </Box>
+
 
                 <TextField sx={{width: "45%"}} disabled autoComplete={"off"} id="filled-disabled"
                            label="nazwa produktu" value={prodName}/>

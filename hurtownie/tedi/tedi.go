@@ -8,9 +8,9 @@ import (
 	"mime/multipart"
 	"net/http"
 	"optimaHurt/hurtownie"
-	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 // ICOM: aby dodać cos do koszyka wystarczy posiadać Ean i ile produktów chcemy dodać --  proste w chuj
@@ -23,45 +23,6 @@ func (t *Tedi) CheckToken(client *http.Client) bool {
 }
 
 func (t *Tedi) RefreshToken(client *http.Client) bool {
-	return true
-	body := struct {
-		RefreshToken string `json:"refresh_token"`
-	}{
-		t.Token.RefreshToken,
-	}
-	jsoned, err := json.Marshal(body)
-	if err != nil {
-		return false
-	}
-	req, err := http.NewRequest("POST", "https://tedi-ws.ampli-solutions.com/auth/token-refresh/", bytes.NewBuffer(jsoned))
-	if err != nil {
-		return false
-	}
-
-	req.Header.Add("Accept", "*/*")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req.Header.Add("Accept-Language", "en-US,en;q=0.5")
-	req.Header.Add("Connection", "keep-alive")
-	req.Header.Add("Content-Length", strconv.Itoa(len(jsoned)))
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Origin", "https://tedi.kd-24.pl")
-	req.Header.Add("Referer", "https://tedi.kd-24.pl/")
-	req.Header.Add("Priority", "u=1, i")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Printf("\nfatal error := %v\n", err)
-		return false
-	}
-
-	var sotToken hurtownie.SotAndSpecjalTokenResponse
-	defer resp.Body.Close()
-	responseReader := json.NewDecoder(resp.Body)
-	err = responseReader.Decode(&sotToken)
-	if err != nil {
-		return false
-	}
-	t.Token = sotToken
 	return true
 } // do naprawy, nie działa
 
@@ -121,6 +82,10 @@ func (t *Tedi) SearchProduct(Ean string, client *http.Client) (interface{}, erro
 	if err != nil {
 		fmt.Printf("err := %v\n", err)
 		return nil, err
+	}
+	if resp.StatusCode == 403 {
+		time.Sleep(time.Second)
+		return t.SearchProduct(Ean, client)
 	}
 	var serverResponse ProductResponse
 	defer resp.Body.Close()

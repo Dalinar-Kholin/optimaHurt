@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -97,7 +96,6 @@ func sendCredentials(client *http.Client, scrf, location, login, password string
 	req.Header.Set("Accept-Language", "en-US,en;q=0.5")
 	req.Header.Set("accept-encoding", "gzip, deflate, br")
 	req.Header.Set("content-type", "application/x-www-form-urlencoded")
-	req.Header.Set("Content-Length", strconv.Itoa(len(jsonStr)))
 	req.Header.Set("origin", "null")
 	req.Header.Set("sec-fetch-dest", "document")
 	req.Header.Set("sec-fetch-mode", "navigate")
@@ -172,7 +170,6 @@ func takeTokeRequest(client *http.Client, code, veryfyer string) (accessToken st
 	req.Header.Set("Cache-Control", "no-cache")
 	req.Header.Set("TE", "trailers")
 	req.Header.Set("content-type", "application/x-www-form-urlencoded")
-	req.Header.Set("Content-Length", strconv.Itoa(len(jsonStr)))
 
 	resp, err := client.Do(req)
 	if err != nil {

@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"optimaHurt/hurtownie"
-	"strconv"
 	"strings"
 )
 
@@ -96,7 +95,6 @@ func secondRequestForToken(client *http.Client,
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	req.Header.Add("Referer", "https://sso.infinite.pl/")
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Content-Length", strconv.Itoa(len(loginPayload))) // Update this if the payload changes
 	req.Header.Add("Origin", "https://sso.infinite.pl")
 	req.Header.Add("Connection", "keep-alive")
 	req.Header.Add("Upgrade-Insecure-Requests", "1")
@@ -139,7 +137,6 @@ func thirdRequestForToken(code string, client *http.Client, secondRequestCookies
 	req.Header.Set("Accept", "*/*")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.5")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Content-Length", strconv.Itoa(len(body)))
 	req.Header.Set("Referer", "https://sot.ehurtownia.pl/")
 	req.Header.Set("Origin", "https://sot.ehurtownia.pl")
 	req.Header.Set("Sec-Fetch-Dest", "empty")

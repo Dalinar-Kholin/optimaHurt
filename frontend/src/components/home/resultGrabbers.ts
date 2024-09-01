@@ -57,7 +57,7 @@ export interface IServerMultipleDataResult{
 export async function getMultipleHurtResult(Items: IItemToSearch[]):  Promise<Map<string, IServerMultipleDataResult[]> | string>{
     const map = new Map<string, IServerMultipleDataResult[]>();
 
-
+    let isOk= true;
     const data = await fetchWithAuth("/api/takePrices", {
         credentials: "include",
         method: "POST",
@@ -66,9 +66,12 @@ export async function getMultipleHurtResult(Items: IItemToSearch[]):  Promise<Ma
             "Content-Type": "application/json"
         }
     }).then(response => {
-        if (!response.ok)
+        if (!response.ok){
+            throw response
+        }
         return response.json();
     }).catch(err => {
+        isOk= false
         if (err instanceof Response) {
             // Obsługa odpowiedzi z błędem
             return err.json().then(errorData => {
@@ -81,10 +84,13 @@ export async function getMultipleHurtResult(Items: IItemToSearch[]):  Promise<Ma
             return "błąd połączenia"
         }
     });
+    if (!isOk){
+        return data
+    }
 
     try {
 
-        if (data.error!= undefined){
+        if (data.error!== undefined){
             return data.error
             //new Promise<string>(() => data.error)
 
