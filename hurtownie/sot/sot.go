@@ -19,39 +19,7 @@ type Sot struct {
 }
 
 func (s *Sot) CheckToken(client *http.Client) bool {
-	req, err := http.NewRequest("GET", "https://sot.ehurtownia.pl/eh-one-backend/rest/71/5/1503697/oferta?lang=EN"+
-		"&offset=0"+
-		"&limit=1"+
-		"&sortAsc=nazwa",
-		nil)
-	if err != nil {
-		fmt.Println("Error creating request:", err)
-		return false
-	}
-
-	// Dodanie nagłówków do zapytania
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.5")
-	req.Header.Set("Connection", "keep-alive")
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Host", "sot.ehurtownia.pl")
-	req.Header.Set("Referer", "https://sot.ehurtownia.pl/")
-	req.Header.Set("Sec-Fetch-Dest", "empty")
-	req.Header.Set("Sec-Fetch-Mode", "cors")
-	req.Header.Set("Sec-Fetch-Site", "same-origin")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0")
-	req.Header.Set("X-Forwarded-Proto", "https")
-	req.Header.Set("X-LOC", "6-6-8-5")
-	req.Header.Set("Authorization", "Bearer "+s.Token.AccessToken)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return false
-	}
-	if resp.StatusCode != 200 {
-		return false
-	}
-	return true
+	return hurtownie.CheckExpDateJwt(s.Token.AccessToken)
 }
 
 func (s *Sot) RefreshToken(client *http.Client) bool {

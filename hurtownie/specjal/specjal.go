@@ -18,41 +18,7 @@ type Specjal struct {
 }
 
 func (s *Specjal) CheckToken(client *http.Client) bool {
-	req, err := http.NewRequest("GET", "https://nowaspecjal.ehurtownia.pl/eh-one-backend/rest/2004/18/9562/oferta?"+
-		"lang=PL"+
-		"&offset=0"+
-		"&limit=1"+
-		"&sortAsc=nazwa",
-		nil)
-
-	if err != nil {
-		fmt.Println("Error creating request:", err)
-		return false
-	}
-
-	// Set headers
-	req.Header.Set("Accept", "*/*")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.5")
-	req.Header.Set("Connection", "keep-alive")
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Host", "nowaspecjal.ehurtownia.pl")
-	req.Header.Set("Referer", "https://nowaspecjal.ehurtownia.pl/")
-	req.Header.Set("Sec-Fetch-Dest", "empty")
-	req.Header.Set("Sec-Fetch-Mode", "no-cors")
-	req.Header.Set("Sec-Fetch-Site", "same-origin")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0")
-	req.Header.Set("X-Forwarded-Proto", "https")
-	req.Header.Set("X-LOC", "2004-4-4-18")
-	req.Header.Set("Authorization", "Bearer "+s.Token.AccessToken)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return false
-	}
-	if resp.StatusCode != 200 {
-		return false
-	}
-	return true
+	return hurtownie.CheckExpDateJwt(s.Token.AccessToken)
 }
 
 func (s *Specjal) RefreshToken(client *http.Client) bool {

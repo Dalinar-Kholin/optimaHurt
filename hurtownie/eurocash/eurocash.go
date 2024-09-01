@@ -11,26 +11,20 @@ import (
 	"optimaHurt/hurtownie"
 	"strconv"
 	"sync"
+	"time"
 )
 
+type EurocashToken struct {
+	date        time.Time
+	AccessToken string
+}
+
 type EurocashObject struct {
-	Token string
+	Token EurocashToken
 }
 
 func (e *EurocashObject) CheckToken(client *http.Client) bool {
-	url := "https://ehurtapi.eurocash.pl/api/offer/getExtraBanner?placement=4"
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return false
-
-	}
-	req.Header.Set("Authorization", "Bearer "+e.Token)
-	makeRequest(req)
-	resp, err := client.Do(req)
-	if err != nil {
-		return false
-	}
-	if resp.StatusCode != 200 {
+	if time.Now().After(e.Token.date.Add(time.Hour)) {
 		return false
 	}
 	return true
@@ -95,7 +89,8 @@ func (e *EurocashObject) TakeToken(login, password string, client *http.Client) 
 		return false
 	}
 	accessToken := takeTokeRequest(client, code, veryfyer)
-	e.Token = accessToken
+	e.Token.AccessToken = accessToken
+	e.Token.date = time.Now()
 	return true
 }
 
@@ -128,7 +123,7 @@ func (e *EurocashObject) SearchProduct(Ean string, client *http.Client) (interfa
 		return nil, errors.New("Błąd przy tworzeniu żądania")
 	}
 	makeRequest(req)
-	req.Header.Set("Authorization", "Bearer "+e.Token)
+	req.Header.Set("Authorization", "Bearer "+e.Token.AccessToken)
 	req.Header.Set("Content-Length", strconv.Itoa(len(jsonData)))
 	resp, err := client.Do(req)
 	if err != nil {
@@ -196,7 +191,7 @@ func (e *EurocashObject) AddToCart(list hurtownie.WishList, client *http.Client)
 		println("err := %v\n", err)
 		return false
 	}
-	req.Header.Set("Authorization", "Berear "+e.Token)
+	req.Header.Set("Authorization", "Berear "+e.Token.AccessToken)
 	req.Header.Set("Host", "ehurtapi.eurocash.pl")
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("Origin", "https://eurocash.pl")
@@ -221,7 +216,7 @@ func (e *EurocashObject) AddToCart(list hurtownie.WishList, client *http.Client)
 	if err != nil {
 		return false
 	}
-	req.Header.Set("Authorization", "Berear "+e.Token)
+	req.Header.Set("Authorization", "Berear "+e.Token.AccessToken)
 	req.Header.Set("Host", "ehurtapi.eurocash.pl")
 	req.Header.Set("Origin", "https://eurocash.pl")
 	req.Header.Set("Referer", "https://eurocash.pl/")

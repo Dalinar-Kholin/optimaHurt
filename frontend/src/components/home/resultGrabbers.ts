@@ -14,6 +14,10 @@ export function getHurtResult(Ean: string): Promise<IHurtInfoForComp[] | string>
         credentials: "include",
         method: "GET",
     }).then(response => {
+        if (!response.ok){
+            throw response
+        }
+
         return response.json();
     }).then(data => {
 
@@ -28,7 +32,17 @@ export function getHurtResult(Ean: string): Promise<IHurtInfoForComp[] | string>
 
         return newData;
     }).catch(err => {
-        throw new Error(err);
+        if (err instanceof Response) {
+            // Obsługa odpowiedzi z błędem
+            return err.json().then(errorData => {
+                return errorData.error
+            }).catch(parseError => {
+                return parseError
+            });
+        } else {
+            // Inne typy błędów, np. brak połączenia z siecią
+            return "błąd połączenia"
+        }
     });
 }
 
@@ -43,19 +57,36 @@ export interface IServerMultipleDataResult{
 export async function getMultipleHurtResult(Items: IItemToSearch[]):  Promise<Map<string, IServerMultipleDataResult[]> | string>{
     const map = new Map<string, IServerMultipleDataResult[]>();
 
+
+    const data = await fetchWithAuth("/api/takePrices", {
+        credentials: "include",
+        method: "POST",
+        body: JSON.stringify({Items: Items}),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    }).then(response => {
+        if (!response.ok)
+        return response.json();
+    }).catch(err => {
+        if (err instanceof Response) {
+            // Obsługa odpowiedzi z błędem
+            return err.json().then(errorData => {
+                return errorData.error
+            }).catch(parseError => {
+                return parseError
+            });
+        } else {
+            // Inne typy błędów, np. brak połączenia z siecią
+            return "błąd połączenia"
+        }
+    });
+
     try {
-        const res = fetchWithAuth("/api/takePrices", {
-            credentials: "include",
-            method: "POST",
-            body: JSON.stringify({Items: Items}),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-        const data = await res.then(response => {return response.json();});
 
         if (data.error!= undefined){
-            return new Promise<string>(() => data.error)
+            return data.error
+            //new Promise<string>(() => data.error)
 
         }
 

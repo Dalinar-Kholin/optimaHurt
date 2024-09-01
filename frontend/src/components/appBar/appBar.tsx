@@ -33,8 +33,9 @@ export default function AppBarCustomed(/*{iconLink}:IAppBarCustomed*/){
                         <Box className="photo" component="img" src={"./assets/nicea.jpeg"} alt="Logo" style={Style.logoIcon} onClick={()=>{
                             navigate('/main');
                         }} />
-                        <Box >
-                            {pages.map((page) => (
+                        <Box sx={{  display: "flex", width: "100%", justifyContent : "space-between"}}>
+                            <Box >
+                                {pages.map((page) => (
                                 <Button
                                     color="inherit"
                                     key={page}
@@ -45,6 +46,20 @@ export default function AppBarCustomed(/*{iconLink}:IAppBarCustomed*/){
                                     {page}
                                 </Button>
                             ))}
+                            </Box>
+                            <Box>
+                                <Button
+                                    color="inherit"
+                                    key={"wyloguj"}
+                                    onClick={()=>{
+                                        localStorage.clear()
+                                        navigate('/login');
+                                    }}
+                                >
+                                    {"wyloguj"}
+                                </Button>
+                            </Box>
+
                         </Box>
                     </Toolbar>
                 </Container>

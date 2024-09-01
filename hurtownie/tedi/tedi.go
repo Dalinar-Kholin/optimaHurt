@@ -19,23 +19,7 @@ type Tedi struct {
 }
 
 func (t *Tedi) CheckToken(client *http.Client) bool {
-	req, err := http.NewRequest("GET", "https://tedi-ws.ampli-solutions.com/product-search/?limit=12&search=5902573004551&isAvailable=true&offset=0", nil)
-	if err != nil {
-		return false
-	}
-	req.Header.Add("Origin", "https://tedi.kd-24.pl")
-	req.Header.Add("Referer", "https://tedi.kd-24.pl")
-	req.Header.Add("Accept-Language", "PL")
-	req.Header.Add("priority", "u=1, i")
-	req.Header.Add("child-customer-id", "3620874")
-	req.Header.Add("Amper_app_name", "B2B")
-	req.Header.Add("Authorization", "Bearer "+t.Token.AccessToken)
-	req.Header.Add("User-Agent", "cUrl")
-	resp, err := client.Do(req)
-	if err != nil || resp.StatusCode != 200 {
-		return false
-	}
-	return true
+	return hurtownie.CheckExpDateJwt(t.Token.AccessToken)
 }
 
 func (t *Tedi) RefreshToken(client *http.Client) bool {
@@ -142,7 +126,6 @@ func (t *Tedi) SearchProduct(Ean string, client *http.Client) (interface{}, erro
 	defer resp.Body.Close()
 	responseReaderJson := json.NewDecoder(resp.Body)
 	err = responseReaderJson.Decode(&serverResponse)
-	fmt.Printf("response %v", serverResponse)
 	if err != nil {
 		fmt.Printf("err %v\n", err)
 		return nil, err

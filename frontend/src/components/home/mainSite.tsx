@@ -256,7 +256,6 @@ export default function MainSite() {
                         setIsLoadingProduct(true)
                         try {
                             getHurtResult(Ean).then(data => {
-
                                 if (typeof (data) === "string") {
                                     setProdName("brak Produktu")
                                     setErrorMessage(data)

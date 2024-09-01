@@ -26,15 +26,6 @@ export default async function fetchWithAuth(url: string, options: RequestInit = 
     // Set the headers back to options
     options.headers = headersObject;
 
-    // Perform the fetch request
-    const response = await fetch(url, options);
 
-    // Handle errors or return the response
-    if (!response.ok) {
-        // Handle error responses (you can customize this as needed)
-        const errorText = await response.text();
-        throw new Error(`Fetch error: ${response.status} ${response.statusText} - ${errorText}`);
-    }
-
-    return response;
+    return await fetch(url, options);
 }

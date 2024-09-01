@@ -1,6 +1,7 @@
 package hurtownie
 
 import (
+	"github.com/golang-jwt/jwt/v5"
 	"math/rand"
 	"strings"
 	"time"
@@ -24,6 +25,31 @@ func GenerateUUID() string {
 	D[23] = '-'
 	C := strings.Join([]string{string(D[:])}, "")
 	return C
+}
+
+func CheckExpDateJwt(hurtToken string) bool {
+	token, _, err := jwt.NewParser().ParseUnverified(hurtToken, jwt.MapClaims{})
+	if err != nil {
+		return false
+	}
+
+	// Wyciąganie informacji o dacie wygaśnięcia (exp)
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		if exp, ok := claims["exp"].(float64); ok {
+			// Konwertowanie czasu wygaśnięcia z Unix Timestamp na time.Time
+			expirationTime := time.Unix(int64(exp)-1 /*odjęcie sekundy ważności tokenu aby mieć margines błędu przetwarzania requesta*/, 0)
+			// Sprawdzenie, czy token jest już przeterminowany
+			if time.Now().After(expirationTime) {
+				return false
+			} else {
+				return true
+			}
+		} else {
+			return false
+		}
+	} else {
+		return false
+	}
 }
 
 type SotAndSpecjalTokenResponse struct {
