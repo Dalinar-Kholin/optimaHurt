@@ -2,6 +2,8 @@ package eurocash
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -148,7 +150,14 @@ func (e *EurocashObject) AddToCart(list hurtownie.WishList, client *http.Client)
 
 	// Manually create a part for the file with custom Content-Type
 	partHeaders := make(textproto.MIMEHeader)
-	partHeaders.Set("Content-Disposition", `form-data; name="uploadFile"; filename="sot-wroclaw-20240802T1440.txt"`)
+
+	newRandom := make([]byte, 32)
+	if _, err := rand.Read(newRandom); err != nil {
+		return false
+	}
+	shieldedToken := base64.URLEncoding.EncodeToString(newRandom)
+	fmt.Println(shieldedToken)
+	partHeaders.Set("Content-Disposition", `form-data; name="uploadFile"; filename="`+shieldedToken+`.txt"`)
 	partHeaders.Set("Content-Type", "text/plain")
 	fileWriter, err := writer.CreatePart(partHeaders)
 	if err != nil {
@@ -156,7 +165,8 @@ func (e *EurocashObject) AddToCart(list hurtownie.WishList, client *http.Client)
 		return false
 	}
 
-	data := ""
+	data := "\n\n"
+
 	prodForEurocash := make([]hurtownie.Items, 0)
 	for _, i := range list.Items {
 		if i.HurtName == hurtownie.Eurocash {
@@ -164,6 +174,7 @@ func (e *EurocashObject) AddToCart(list hurtownie.WishList, client *http.Client)
 			prodForEurocash = append(prodForEurocash, i)
 		}
 	}
+	data += "\n\n"
 	if len(prodForEurocash) == 0 {
 		return true
 	}
@@ -184,7 +195,32 @@ func (e *EurocashObject) AddToCart(list hurtownie.WishList, client *http.Client)
 		return false
 	}
 
-	req, err := http.NewRequest("POST", "https://ehurtapi.eurocash.pl/api/order/importHistory", &requestBody)
+	// https://ehurtapi.eurocash.pl/api/settings/addSetting2
+	bdy := `{"key":"Zamowienia.Format.Import","value":"KCF_KOSZ"}`
+
+	req, err := http.NewRequest("POST", "https://ehurtapi.eurocash.pl/api/settings/addSetting2", bytes.NewBuffer([]byte(bdy)))
+	if err != nil {
+		println("err := %v\n", err)
+		return false
+	}
+	req.Header.Set("Authorization", "Berear "+e.Token.AccessToken)
+	req.Header.Set("Host", "ehurtapi.eurocash.pl")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Origin", "https://eurocash.pl")
+	req.Header.Set("Referer", "https://eurocash.pl/")
+	req.Header.Set("Business-Unit", "ECT")
+	req.Header.Set("Sec-Ch-Ua", `"Not-A.Brand";v="99", "Chromium";v="124"`)
+	req.Header.Set("Sec-Ch-Ua-Mobile", "?0")
+	req.Header.Set("Sec-Ch-Ua-Platform", `"Linux"`)
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.60 Safari/537.36")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	req, err = http.NewRequest("POST", "https://ehurtapi.eurocash.pl/api/order/importHistory", &requestBody)
 	if err != nil {
 		println("err := %v\n", err)
 		return false
@@ -200,22 +236,84 @@ func (e *EurocashObject) AddToCart(list hurtownie.WishList, client *http.Client)
 	req.Header.Set("Sec-Ch-Ua-Platform", `"Linux"`)
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.60 Safari/537.36")
 
-	resp, err := client.Do(req)
+	resp, err = client.Do(req)
 	if err != nil {
 		fmt.Println(err)
 		return false
 	}
 	if resp.StatusCode != 200 {
-
 		return false
 	}
-	// trzeba potwierdzić koszyk
-	req, err = http.NewRequest("GET", "https://ehurtapi.eurocash.pl/api/order/rewriteImportedData/false", nil)
+
+	bdy = `{"key":"Zamowienia.Format.Import","value":"Z_KCM"}`
+
+	req, err = http.NewRequest("POST", "https://ehurtapi.eurocash.pl/api/settings/addSetting2", bytes.NewBuffer([]byte(bdy)))
 	if err != nil {
+		println("err := %v\n", err)
 		return false
 	}
 	req.Header.Set("Authorization", "Berear "+e.Token.AccessToken)
 	req.Header.Set("Host", "ehurtapi.eurocash.pl")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Origin", "https://eurocash.pl")
+	req.Header.Set("Referer", "https://eurocash.pl/")
+	req.Header.Set("Business-Unit", "ECT")
+	req.Header.Set("Sec-Ch-Ua", `"Not-A.Brand";v="99", "Chromium";v="124"`)
+	req.Header.Set("Sec-Ch-Ua-Mobile", "?0")
+	req.Header.Set("Sec-Ch-Ua-Platform", `"Linux"`)
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.60 Safari/537.36")
+
+	resp, err = client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	// trzeba potwierdzić koszyk
+	req, err = http.NewRequest("POST", "https://ehurtapi.eurocash.pl/api/order/importHistorySummary", bytes.NewBuffer([]byte(`{"Indeks":false,"OpakZb":false}`)))
+	if err != nil {
+		return false
+	}
+
+	req.Header.Set("access-control-allow-credentials", "true")
+	req.Header.Set("access-control-allow-origin", "https://eurocash.pl")
+	req.Header.Set("access-control-expose-headers", "Content-Disposition")
+	req.Header.Set("Authorization", "Berear "+e.Token.AccessToken)
+	req.Header.Set("Host", "ehurtapi.eurocash.pl")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Origin", "https://eurocash.pl")
+	req.Header.Set("Referer", "https://eurocash.pl/")
+	req.Header.Set("Business-Unit", "ECT")
+	req.Header.Set("Sec-Ch-Ua", `"Not-A.Brand";v="99", "Chromium";v="124"`)
+	req.Header.Set("Sec-Ch-Ua-Mobile", "?0")
+	req.Header.Set("Sec-Ch-Ua-Platform", `"Linux"`)
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.60 Safari/537.36")
+	resp, err = client.Do(req)
+
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	req, err = http.NewRequest("POST", "https://ehurtapi.eurocash.pl/api/order/rewriteImportedData/false", nil)
+	if err != nil {
+		return false
+	}
+
+	/*
+		access-control-allow-credentials true
+		access-control-allow-origin
+			https://eurocash.pl
+		access-control-expose-headers
+			Content-Disposition
+	*/
+
+	req.Header.Set("access-control-allow-credentials", "true")
+	req.Header.Set("access-control-allow-origin", "https://eurocash.pl")
+	req.Header.Set("access-control-expose-headers", "Content-Disposition")
+	req.Header.Set("Authorization", "Berear "+e.Token.AccessToken)
+	req.Header.Set("Host", "ehurtapi.eurocash.pl")
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Origin", "https://eurocash.pl")
 	req.Header.Set("Referer", "https://eurocash.pl/")
 	req.Header.Set("Business-Unit", "ECT")
