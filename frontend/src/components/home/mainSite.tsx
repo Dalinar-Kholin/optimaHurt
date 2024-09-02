@@ -122,6 +122,7 @@ export default function MainSite() {
 
     const searchOneProd = () => {
         setIsLoadingProduct(true)
+        setErrorMessage("")
         try {
             getHurtResult(Ean).then(data => {
                 if (typeof (data) === "string") {
@@ -168,6 +169,7 @@ export default function MainSite() {
     }
 
     useEffect(() => {
+        setErrorMessage("")
         if (prodToSearch.length === 0) {
             return;
         }
@@ -187,33 +189,30 @@ export default function MainSite() {
                 prodToSearch.map((item) => {
                     const ItemsMatchEan = data.get(item.Ean)
                     if (ItemsMatchEan) {
-
-
+                        console.log(ItemsMatchEan)
                         const optimalItem = ItemsMatchEan.reduce((prev, current) => {
-                            return prev.Item.priceForOne < current.Item.priceForOne ? prev : current
-                        })
-                        newOptItems.push({
-                            name: item.Name,
-                            ean: item.Ean,
-                            item: optimalItem.Item,
-                            count: item.Amount,
-                        })
+                            // Check if the current price is -1; if so, skip it by returning prev
+                            if (current.Item.priceForOne === -1) {
+                                return prev;
+                            }
+                            // If prev price is -1 or current price is lower than prev price, select current
+                            if (prev.Item.priceForOne === -1 || current.Item.priceForOne < prev.Item.priceForOne) {
+                                return current;
+                            }
+                            // Otherwise, keep prev
+                            return prev;
+                        });
+                        if (optimalItem.Item.priceForOne!==-1){
+                            newOptItems.push({
+                                name: item.Name,
+                                ean: item.Ean,
+                                item: optimalItem.Item,
+                                count: item.Amount,
+                            })
+                        }
                         newAllResult.push({
                             ean: item.Ean,
                             result: ItemsMatchEan
-                        })
-                    } else {
-                        newOptItems.push({
-                            name: item.Name,
-                            ean: item.Ean,
-                            item: {
-                                name: item.Name,
-                                hurtName: hurtNames.none,
-                                priceForPack: -1,
-                                priceForOne: -1,
-                                productsInPack: -1,
-                            },
-                            count: item.Amount,
                         })
                     }
                 })
@@ -374,9 +373,6 @@ export default function MainSite() {
             </Box>}
 
             <InputComp setItem={prod => setProdToSearch(prod)} setName={name => setFileName(name)}/>
-
-
-
                 <Dialog
                     open={open}
                     onClose={()=>{setOpen(false)}}

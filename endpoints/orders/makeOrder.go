@@ -44,7 +44,7 @@ func MakeOrder(c *gin.Context) {
 			defer wg.Done()
 			ch <- Result{
 				Name:   (*hurt).GetName(),
-				Status: (*hurt).AddToCart(list, userInstance.Client)}
+				Status: (*hurt).AddToCart(list, userInstance.Client)} // przekazuje całą listę, z której już każda hurtowania sobie wycina te które są potrzebne
 		}(&hurt, &wg, ch)
 	}
 

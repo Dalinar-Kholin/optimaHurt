@@ -24,10 +24,10 @@ func TakePrice(c *gin.Context) {
 	}
 
 	var wg sync.WaitGroup
-	ch := make(chan interface{})
+	ch := make(chan SearchResult)
 	for _, hurt := range userInstance.Hurts {
 		wg.Add(1)
-		go func(hurt *hurtownie.IHurt, wg *sync.WaitGroup, ch chan<- interface{}) {
+		go func(hurt *hurtownie.IHurt, wg *sync.WaitGroup, ch chan<- SearchResult) {
 			defer wg.Done()
 			res, err := (*hurt).SearchProduct(ean, userInstance.Client)
 			if err != nil && err.Error() == "tokenError" {
@@ -52,7 +52,7 @@ func TakePrice(c *gin.Context) {
 		wg.Wait()
 		close(ch)
 	}()
-	result := make([]interface{}, len(userInstance.Hurts))
+	result := make([]SearchResult, len(userInstance.Hurts))
 	i := 0
 
 	for x := range ch {

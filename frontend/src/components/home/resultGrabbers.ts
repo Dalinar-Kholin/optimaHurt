@@ -58,6 +58,7 @@ export async function getMultipleHurtResult(Items: IItemToSearch[]):  Promise<Ma
     const map = new Map<string, IServerMultipleDataResult[]>();
 
     let isOk= true;
+
     const data = await fetchWithAuth("/api/takePrices", {
         credentials: "include",
         method: "POST",
@@ -85,29 +86,28 @@ export async function getMultipleHurtResult(Items: IItemToSearch[]):  Promise<Ma
         }
     });
     if (!isOk){
-        return data
+        return data // zwracamy tutaj data, ponieważ w catch zwróciliśmy tam request
     }
 
     try {
 
-        if (data.error!== undefined){
+        if (data.error !== undefined){
             return data.error
-            //new Promise<string>(() => data.error)
-
         }
 
-        data.map((i : any) => {
-            i.Result.map((item : any) => {
-                const itemArray = map.get(item.Ean);
+        data.map((i : any) => { // mapujemy po konkretnych hurtowniach
+            i.Result.map((item : any) => { // mapujemy po konkretnych wynikach z hurtowni
+                const itemArray = map.get(item.Ean); // poprzednie wyniki
                 const newItem = {
                     Ean: item.Ean,
-                    Item: handleResults({name: i.HurtName})(item.Item),
+                    Item: handleResults({name: i.HurtName})(item.Item), // przetwarzamy dane
                     hurtName: i.HurtName
                 };
+
                 if (itemArray !== undefined) {
-                    itemArray.push(newItem);
+                    itemArray.push(newItem); // jeżeli mamy poprzednie wyniki to pushujemy nasz nowy
                 } else {
-                    map.set(item.Ean, [newItem]);
+                    map.set(item.Ean, [newItem]); // jeżeli nie było wcześniej wyników to tworzymy nową tablicę z konkretnymi wynikamy
                 }
             });
         });

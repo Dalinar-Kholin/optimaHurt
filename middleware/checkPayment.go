@@ -13,7 +13,7 @@ func CheckPayment(c *gin.Context) {
 	userInstance := Users[token]
 
 	if userInstance.AccountStatus != user.Active {
-		c.JSON(401, gin.H{
+		c.JSON(400, gin.H{
 			"error": "make Payment",
 		})
 		c.Abort()

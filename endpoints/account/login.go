@@ -139,15 +139,22 @@ func Login(c *gin.Context) {
 	shieldedToken := base64.URLEncoding.EncodeToString(newToken)
 	//shieldedToken := base64.StdEncoding.EncodeToString(newToken) // token jest użytkowany tylko podczas sesji, więc nie ma potrzeby przechowywania go w bazie danych
 	Users[shieldedToken] = userInstance
-	c.JSON(200, gin.H{
-		"result":         loginLog,
-		"token":          shieldedToken,
-		"availableHurts": loggedHurts,
-		"accountStatus":  dataBaseResponse.AccountStatus,
-		"companyName":    dataBaseResponse.CompanyData.Name,
-	})
+
+	loginResult := LoginResult{
+		Result:         loginLog,
+		Token:          shieldedToken,
+		AvailableHurts: loggedHurts,
+		Status:         dataBaseResponse.AccountStatus,
+		CompanyName:    dataBaseResponse.CompanyData.Name,
+	}
+
+	c.JSON(200, loginResult)
 }
 
-//
-// makro
-//
+type LoginResult struct {
+	Result         []ChannelResponse  `json:"result"`
+	Token          string             `json:"token"`
+	AvailableHurts hurtownie.HurtName `json:"availableHurts"`
+	Status         user.AccountStatus `json:"accountStatus"`
+	CompanyName    string             `json:"companyName"`
+}
