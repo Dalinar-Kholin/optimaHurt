@@ -14,6 +14,7 @@ func CheckToken(c *gin.Context) {
 			"error": "where Token?",
 		})
 		c.Abort()
+		return
 	}
 	var ok bool
 	if _, ok = constAndVars.Users[token]; !ok {
@@ -21,5 +22,6 @@ func CheckToken(c *gin.Context) {
 			"error": "where logowanie?",
 		})
 		c.Abort()
+		return
 	}
 } // globalna mapa mapująca TOKEN na usera

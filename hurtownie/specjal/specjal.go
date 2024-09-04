@@ -22,6 +22,7 @@ func (s *Specjal) CheckToken(client *http.Client) bool {
 }
 
 func (s *Specjal) RefreshToken(client *http.Client) bool {
+
 	body := "grant_type=refresh_token" +
 		"&refresh_token=" + s.Token.RefreshToken +
 		"&client_id=ehurtownia-panel-frontend"
@@ -46,7 +47,9 @@ func (s *Specjal) RefreshToken(client *http.Client) bool {
 		fmt.Printf("\nfatal error := %v\n", err)
 		return false
 	}
-
+	if resp.StatusCode != 200 {
+		return false
+	}
 	var sotToken hurtownie.SotAndSpecjalTokenResponse
 	defer resp.Body.Close()
 	responseReader := json.NewDecoder(resp.Body)

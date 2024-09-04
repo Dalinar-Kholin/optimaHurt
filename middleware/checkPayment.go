@@ -17,5 +17,6 @@ func CheckPayment(c *gin.Context) {
 			"error": "make Payment",
 		})
 		c.Abort()
+		return
 	}
 }

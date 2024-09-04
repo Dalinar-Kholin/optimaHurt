@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"optimaHurt/hurtownie"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -23,7 +24,7 @@ func (t *Tedi) CheckToken(client *http.Client) bool {
 }
 
 func (t *Tedi) RefreshToken(client *http.Client) bool {
-	return true
+	return false
 } // do naprawy, nie działa
 
 type Creds struct {
@@ -133,8 +134,14 @@ func (t *Tedi) SearchMany(list hurtownie.WishList, client *http.Client) ([]hurto
 }
 
 func (t *Tedi) AddToCart(list hurtownie.WishList, client *http.Client) bool {
+
 	var body bytes.Buffer
 	writer := multipart.NewWriter(&body)
+
+	mapEanIntoQuantity := make(map[string]int)
+	for _, i := range list.Items {
+		mapEanIntoQuantity[i.Ean] = i.Amount
+	}
 
 	data := ""
 	prodForTedi := make([]hurtownie.Items, 0)
@@ -148,7 +155,7 @@ func (t *Tedi) AddToCart(list hurtownie.WishList, client *http.Client) bool {
 	if len(prodForTedi) == 0 {
 		return true
 	}
-	// Add the file content to the multipart form data
+
 	part, err := writer.CreateFormFile("order_file", "order.txt")
 
 	if err != nil {
@@ -179,22 +186,24 @@ func (t *Tedi) AddToCart(list hurtownie.WishList, client *http.Client) bool {
 	}
 
 	// Set the headers
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Accept-Language", "PL")
-	req.Header.Add("Amper_app_name", "B2B")
-	req.Header.Add("Origin", "https://tedi.kd-24.pl")
-	req.Header.Add("Referer", "https://tedi.kd-24.pl")
+	setHeader := func(req *http.Request) {
+		req.Header.Add("Accept", "application/json")
+		req.Header.Add("Accept-Language", "PL")
+		req.Header.Add("Amper_app_name", "B2B")
+		req.Header.Add("Origin", "https://tedi.kd-24.pl")
+		req.Header.Add("Referer", "https://tedi.kd-24.pl")
+		req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0")
+		req.Header.Set("Accept-Language", "pl")
+		req.Header.Set("Sec-Fetch-Dest", "empty")
+		req.Header.Set("Sec-Fetch-Mode", "no-cors")
+		req.Header.Set("Sec-Fetch-Site", "cross-site")
+		req.Header.Set("AMPER_APP_NAME", "B2B")
+		req.Header.Set("Pragma", "no-cache")
+		req.Header.Set("Cache-Control", "no-cache")
+		req.Header.Set("Authorization", "Bearer "+t.Token.AccessToken)
+	}
+	setHeader(req)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0")
-	req.Header.Set("Accept", "application/json, text/plain, */*")
-	req.Header.Set("Accept-Language", "pl")
-	req.Header.Set("Sec-Fetch-Dest", "empty")
-	req.Header.Set("Sec-Fetch-Mode", "no-cors")
-	req.Header.Set("Sec-Fetch-Site", "cross-site")
-	req.Header.Set("AMPER_APP_NAME", "B2B")
-	req.Header.Set("Pragma", "no-cache")
-	req.Header.Set("Cache-Control", "no-cache")
-	req.Header.Set("Authorization", "Bearer "+t.Token.AccessToken)
 	// Send the request
 	resp, err := client.Do(req)
 	if err != nil {
@@ -202,6 +211,116 @@ func (t *Tedi) AddToCart(list hurtownie.WishList, client *http.Client) bool {
 		return false
 	}
 	defer resp.Body.Close()
+
+	var responseWithId struct {
+		Data struct {
+			CartEntries []struct {
+				Id        int `json:"product"`
+				BestPrice struct {
+					Price float64 `json:"price"`
+				} `json:"best_price"`
+			} `json:"cart_entries"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&responseWithId); err != nil {
+		fmt.Printf("error in tedi get Id := %v", err)
+		return false
+	}
+	items := ""
+	for _, i := range responseWithId.Data.CartEntries {
+		items += strconv.Itoa(i.Id) + ","
+	}
+	items = items[:len(items)-1] // usuwamy przecinek z końca
+
+	req, err = http.NewRequest("GET", "https://tedi-ws.ampli-solutions.com/product-list/?ids="+items, nil)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	setHeader(req)
+
+	resp, err = client.Do(req)
+	if err != nil {
+		fmt.Printf("%v", err)
+		return false
+	}
+
+	defer resp.Body.Close()
+
+	var resultWithPrice []struct {
+		Id              int     `json:"id"`
+		Ean             string  `json:"ean"`
+		FinalPrice      float64 `json:"final_price"`
+		FinalPriceGross float64 `json:"final_price_gross"`
+		BasePrice       float64 `json:"default_price"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&resultWithPrice); err != nil {
+		fmt.Printf("error with parsing prices in tedi cart := %v\n", err)
+		return false
+	}
+
+	type Line struct {
+		BasePrice       float64 `json:"base_price_net"`
+		FinalPriceGross float64 `json:"final_price_gross"`
+		FinalPriceNet   float64 `json:"final_price_net"`
+		ProductId       int     `json:"product_id"`
+		Quantity        int     `json:"quantity"`
+		StockLocation   int     `json:"source_stock_location_id"`
+	}
+
+	type Lines struct {
+		Line Line `json:"line"`
+	}
+
+	type AddToCartPayload struct {
+		Lines []Lines `json:"lines"`
+	}
+
+	// ICOM: ogarnąć tworzenie tych payloadów itd, chyba powinien być fajrant
+	payload := AddToCartPayload{Lines: make([]Lines, 0)}
+	for _, i := range resultWithPrice {
+		payload.Lines = append(payload.Lines, Lines{
+			Line: Line{
+				BasePrice:       i.BasePrice,
+				FinalPriceNet:   i.FinalPrice,
+				FinalPriceGross: i.FinalPriceGross,
+				ProductId:       i.Id,
+				Quantity:        mapEanIntoQuantity[i.Ean],
+				StockLocation:   600016,
+			},
+		})
+	}
+
+	payloadParsed, err := json.Marshal(payload)
+
+	if err != nil {
+		fmt.Printf("%v", err)
+		return false
+	}
+	req, err = http.NewRequest("POST", "https://tedi-ws.ampli-solutions.com/cart-lines/?cart_id=31338", bytes.NewBuffer(payloadParsed))
+	if err != nil {
+		return false
+	}
+	req.Header.Set("Content-Type", "application/json")
+	setHeader(req)
+	resp, err = client.Do(req)
+
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return false
+	}
+	if resp.StatusCode != 201 {
+		defer resp.Body.Close()
+		bdy, err := io.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			return false
+		}
+		fmt.Printf("%s\n", bdy)
+		return false
+	}
+	// tutaj jako response dostajemy dane oraz id produktów, na ich podstawie jesteśmy w stanie dostać ceny produktów i przesłać je do koszyka po odpowiedniej cenie
+
 	return true
 }
 

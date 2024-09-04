@@ -1,0 +1,50 @@
+[
+  {
+    "lines": [
+      {
+        "line": {
+          "quantity": 12,
+          "source_stock_location_id": 600016,
+          "product_id": 2298,
+          "final_price_net": 1.35,
+          "final_price_gross": 1.66,
+          "base_price_net": 1.77
+        }
+      },
+      {
+        "line": {
+          "quantity": 12,
+          "source_stock_location_id": 600016,
+          "product_id": 2634,
+          "final_price_net": 1.69,
+          "final_price_gross": 2.08,
+          "base_price_net": 2.37
+        }
+      }
+    ]
+  },
+  {
+    "lines": [
+      {
+        "line": {
+          "base_price_net": "1.77",
+          "final_price_gross": 1.66,
+          "final_price_net": 1.35,
+          "product_id": 2298,
+          "quantity": 8,
+          "source_stock_location_id": 600016
+        }
+      },
+      {
+        "line": {
+          "base_price_net": "2.37",
+          "final_price_gross": 2.08,
+          "final_price_net": 1.69,
+          "product_id": 2634,
+          "quantity": 123,
+          "source_stock_location_id": 600016
+        }
+      }
+    ]
+  }
+]

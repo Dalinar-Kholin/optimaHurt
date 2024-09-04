@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"optimaHurt/constAndVars"
 	"optimaHurt/hurtownie"
@@ -32,7 +33,7 @@ func CheckHurtTokenCurrency(c *gin.Context) {
 		go func(wg *sync.WaitGroup, hurt hurtownie.IHurt) {
 			defer wg.Done()
 			if !hurt.CheckToken(userInstance.Client) {
-				print("chuj")
+				fmt.Printf("refresh tokena hurtowni := %v", hurt.GetName())
 				if !hurt.RefreshToken(userInstance.Client) {
 					userCred := userInstance.TakeHurtCreds(hurt.GetName())
 					if !hurt.TakeToken(userCred.Login, userCred.Password, userInstance.Client) {

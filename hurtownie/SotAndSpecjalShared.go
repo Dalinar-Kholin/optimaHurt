@@ -39,10 +39,10 @@ func CheckExpDateJwt(hurtToken string) bool {
 			// Konwertowanie czasu wygaśnięcia z Unix Timestamp na time.Time
 			expirationTime := time.Unix(int64(exp)-1 /*odjęcie sekundy ważności tokenu aby mieć margines błędu przetwarzania requesta*/, 0)
 			// Sprawdzenie, czy token jest już przeterminowany
-			if time.Now().After(expirationTime) {
-				return false
-			} else {
+			if !time.Now().After(expirationTime) {
 				return true
+			} else {
+				return false
 			}
 		} else {
 			return false

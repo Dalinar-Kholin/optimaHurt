@@ -144,6 +144,19 @@ func (e *EurocashObject) SearchProduct(Ean string, client *http.Client) (interfa
 
 func (e *EurocashObject) AddToCart(list hurtownie.WishList, client *http.Client) bool {
 	// ICOM: do zrobienia aby pobioerało dane z wishList
+	data := "\n\n"
+
+	prodForEurocash := make([]hurtownie.Items, 0)
+	for _, i := range list.Items {
+		if i.HurtName == hurtownie.Eurocash {
+			data += fmt.Sprintf("%v;%v;1;a\n", i.Ean, i.Amount)
+			prodForEurocash = append(prodForEurocash, i)
+		}
+	}
+	if len(prodForEurocash) == 0 {
+		return true
+	}
+	data += "\n\n"
 
 	req, err := http.NewRequest("DELETE", "https://ehurtapi.eurocash.pl/api/cart/eraseCart/false", nil)
 	if err != nil {
@@ -190,19 +203,6 @@ func (e *EurocashObject) AddToCart(list hurtownie.WishList, client *http.Client)
 		return false
 	}
 
-	data := "\n\n"
-
-	prodForEurocash := make([]hurtownie.Items, 0)
-	for _, i := range list.Items {
-		if i.HurtName == hurtownie.Eurocash {
-			data += fmt.Sprintf("%v;%v;1;a\n", i.Ean, i.Amount)
-			prodForEurocash = append(prodForEurocash, i)
-		}
-	}
-	data += "\n\n"
-	if len(prodForEurocash) == 0 {
-		return true
-	}
 	_, err = fileWriter.Write([]byte(data))
 	if err != nil {
 		fmt.Println(err)

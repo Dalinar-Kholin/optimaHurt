@@ -2,7 +2,26 @@ import {useState} from "react";
 import {Alert, AlertTitle, Button, TextField} from "@mui/material";
 import "./login.css"
 import {useNavigate} from "react-router-dom";
+import {hurtNames} from "../../interfaces.ts";
 
+
+
+interface hurtLoginSuccess{
+    hurt: number
+    success : boolean
+}
+
+interface loginResponse{
+    result : hurtLoginSuccess[]
+    token : string
+    availableHurts : number
+    accountStatus : number
+    companyName: string
+}
+
+interface badResponse{
+    error : string
+}
 
 export default function LoginForm(){
 
@@ -43,26 +62,35 @@ export default function LoginForm(){
                         });
                     }
                     return response.json();
-                }).then(data => {
+                }).then((data: loginResponse | badResponse) => {
 
-                    if (data.error != undefined){
-                        setErrorMessage(data.error)
-                        setIsProperData(false)
-                        return
+                    if ('error' in data) {
+                        setErrorMessage(data.error);
+                        setIsProperData(false);
+                        return;
                     }
 
-                    localStorage.setItem("accessToken", data.token)
-                    localStorage.setItem("availableHurts", "" + data.availableHurts)
-                    localStorage.setItem("accountStatus", "" + data.accountStatus)
-                    localStorage.setItem("companyName", data.companyName)
+                    // Jeżeli `data` jest typu `loginResponse`, wykonujemy poniższe operacje
+                    localStorage.setItem("accessToken", data.token);
+                    localStorage.setItem("availableHurts", data.availableHurts.toString());
+                    localStorage.setItem("accountStatus", data.accountStatus.toString());
+                    localStorage.setItem("companyName", data.companyName);
 
-                    setIsProperData(true)
-                    setUsername("")
-                    setPassword("")
-                    navigate("/strona główna")
-                    // dodać ciasteczka
-                    // przenieść na stronę główną
-                    console.log(data)
+                    // Przetwarzanie wyników logowania do hurtowni
+                    data.result.map(i => {
+                        if (!i.success) {
+                            alert(`Nie udało się zalogować do hurtowni ${hurtNames[i.hurt]}`);
+                        }
+                    });
+
+                    // Ustawiamy stan po pomyślnym logowaniu
+                    setIsProperData(true);
+                    setUsername("");
+                    setPassword("");
+
+                    // Przenoszenie użytkownika na stronę główną
+                    navigate("/strona główna");
+
                 }).catch(error => {
                     console.error('There has been a problem with your fetch operation:', error);
                 })

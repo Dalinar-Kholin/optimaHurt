@@ -18,11 +18,15 @@ import stratchInputType from "./inputField/handleInputTypes/stracher.ts";
 import Box from '@mui/material/Box';
 import {getHurtResult, getMultipleHurtResult} from "./resultGrabbers.ts";
 import fetchWithAuth from "../../typeScriptFunc/fetchWithAuth.ts";
+import {useNavigate} from "react-router-dom";
 
 // niebieska obwódka -- najtańszy pakiet
 // zielona obwódka -- najtanicej za produkt
 // czerwona obwódka -- najdrożej za produkt
 
+
+
+// ICOM: czy zaimplementować obsługę błędów jak w Go???
 
 export default function MainSite() {
     // region zmienne
@@ -49,7 +53,7 @@ export default function MainSite() {
     const [open, setOpen] = useState<boolean>(false);
     const [agreement, setAgreement] = useState<boolean>(false)
 
-
+    const navigate = useNavigate()
 
 
     const [fileName, setFileName] = useState<string>("")
@@ -127,7 +131,12 @@ export default function MainSite() {
             getHurtResult(Ean).then(data => {
                 if (typeof (data) === "string") {
                     setProdName("brak Produktu")
+
+                    if (data==="where logowanie?" || data=== "where Token?"){
+                        navigate("/login")
+                    }
                     setErrorMessage(data)
+
                     setIsLoadingProduct(false)
                     return
                 }
@@ -178,7 +187,7 @@ export default function MainSite() {
         try {
             getMultipleHurtResult(prodToSearch).then(data => {
 
-                if (typeof (data) == "string") {
+                if (typeof (data) == "string") { // jeżeli odpowiedzią jest string znaczy że mamy błąd
                     setErrorMessage(data)
                     setIsLoadingProduct(false)
                     return
@@ -248,9 +257,8 @@ export default function MainSite() {
                 if (response.status !== 200) {
                     throw new Error("nie udało się złożyć zamówienia")
                 }
-                return response.json()
-            }).then(data => {
-                console.log(data)
+                setOpenSnackbar(true)
+                setMessageFromBackend("udało się dodać produkty do koszyka")
             }).catch(err => {
                 setErrorMessage(err)
                 throw new Error(err);
@@ -259,7 +267,7 @@ export default function MainSite() {
         }
         setAgreement(false)
 
-    }, [agreement]);
+    }, [agreement]); //dodawanie do koszyka
 
     useEffect(() => {
         fetchWithAuth("/api/messages").then(response => {

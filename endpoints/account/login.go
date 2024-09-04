@@ -21,19 +21,19 @@ func makeNewUser(dbUser user.DataBaseUserObject) (userInstance *user.User, avail
 
 	var wg sync.WaitGroup
 
-	/*	proxyURL, err := url.Parse("http://127.0.0.1:8000")
-		if err != nil {
-			fmt.Println("Błąd parsowania URL proxy:", err)
-			return
-		}
+	/*proxyURL, err := url.Parse("http://127.0.0.1:8000")
+	if err != nil {
+		fmt.Println("Błąd parsowania URL proxy:", err)
+		return
+	}
 
-		// Konfiguracja Transport z Proxy
-		transport := &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		}*/
+	// Konfiguracja Transport z Proxy
+	transport := &http.Transport{
+		Proxy: http.ProxyURL(proxyURL),
+	}*/
 
 	client := &http.Client{
-		// Transport: transport,
+		//Transport: transport,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
