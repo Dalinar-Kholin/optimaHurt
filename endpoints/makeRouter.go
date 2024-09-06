@@ -29,6 +29,10 @@ func MakeRouter() *gin.Engine {
 	// Dodanie trasy API
 	api := r.Group("/api")
 	{
+		api.GET("isAlive", func(c *gin.Context) {
+			c.JSON(200, true)
+		})
+
 		api.POST("/checkCredentials", account.CheckCredentials)
 
 		api.POST("/checkCookie", account.TestCookie)

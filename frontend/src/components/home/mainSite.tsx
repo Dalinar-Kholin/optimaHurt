@@ -25,8 +25,22 @@ import {useNavigate} from "react-router-dom";
 // czerwona obwódka -- najdrożej za produkt
 
 
+const sendRequest = async () => {
+    try {
+        const response = await fetch('/api/isAlive', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+    } catch (error) {
+        console.error('Error during fetch:', error);
+    }
+};
 
-// ICOM: czy zaimplementować obsługę błędów jak w Go???
 
 export default function MainSite() {
     // region zmienne
@@ -59,7 +73,7 @@ export default function MainSite() {
     const [fileName, setFileName] = useState<string>("")
 
     // endregion
-
+    setInterval(sendRequest, 240000);
     // region pozwala na przeciąganie plików
     const onDrop = useCallback((event: DragEvent) => {
         event.preventDefault();
