@@ -24,10 +24,7 @@ export default function InputComp({setItem,setName}: IInputField){
                     setItem(stratchInputType(result, file.name)(result))
                 }
             };
-
             reader.readAsText(file);
-
-
         }
     };
 

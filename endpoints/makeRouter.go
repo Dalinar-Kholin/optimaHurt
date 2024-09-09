@@ -1,7 +1,6 @@
 package endpoints
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"optimaHurt/constAndVars"
 	"optimaHurt/endpoints/account"
@@ -37,11 +36,12 @@ func MakeRouter() *gin.Engine {
 
 		api.POST("/checkCookie", account.TestCookie)
 
-		api.POST("/exit", func(c *gin.Context) {
-			cookie, _ := c.Request.Cookie("accessToken")
-
-			delete(constAndVars.Users, cookie.Value)
-			fmt.Printf("deleted cookie %v\n", cookie.Value)
+		api.GET("/logout", func(c *gin.Context) {
+			auth := c.Request.Header.Get("Authorization")
+			if auth == "" {
+				return
+			}
+			delete(constAndVars.Users, auth)
 		})
 
 		api.POST("/takePrices", middleware.CheckToken, middleware.CheckHurtTokenCurrency, middleware.CheckPayment, takePrices.TakeMultiple) // get nie może mieć body, więc robimy post

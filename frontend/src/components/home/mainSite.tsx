@@ -20,36 +20,13 @@ import {getHurtResult, getMultipleHurtResult} from "./resultGrabbers.ts";
 import fetchWithAuth from "../../typeScriptFunc/fetchWithAuth.ts";
 import {useNavigate} from "react-router-dom";
 
-// niebieska obwódka -- najtańszy pakiet
-// zielona obwódka -- najtanicej za produkt
-// czerwona obwódka -- najdrożej za produkt
-
-
-const sendRequest = async () => {
-    try {
-        const response = await fetch('/api/isAlive', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-    } catch (error) {
-        console.error('Error during fetch:', error);
-    }
-};
-
 
 export default function MainSite() {
     // region zmienne
     const [Ean, setEan] = useState<string>("")
     const [prodName, setProdName] = useState<string>("")
-    const [selectedEan, setSelectedEan] = useState<string>("")
 
     const [componentHashTable, setComponentHashTable] = useState<Map<hurtNames, ReactNode>>(new Map<hurtNames, ReactNode>())
-
 
     const [errorMessage, setErrorMessage] = useState<string>("")
 
@@ -69,11 +46,14 @@ export default function MainSite() {
 
     const navigate = useNavigate()
 
-
     const [fileName, setFileName] = useState<string>("")
 
+    const [selectedIndex, setSelectedIndex] = useState(0);
+
+
+
     // endregion
-    setInterval(sendRequest, 240000);
+
     // region pozwala na przeciąganie plików
     const onDrop = useCallback((event: DragEvent) => {
         event.preventDefault();
@@ -110,22 +90,33 @@ export default function MainSite() {
 
     const changeResultComp = (ean: string, name: string) => {
         const newComponentHashTable = new Map<hurtNames, ReactNode>()
-        setSelectedEan(ean)
         setEan(ean)
         if (allResult.filter((item) => item.ean === ean).length === 0) {
             newComponentHashTable.set(hurtNames.none,
                 <HurtResultForm
+                    isCheaper={false}
                     name={hurtNames[hurtNames.none]}
                     priceForPack={-1}
                     princeForOne={-1}
                     productsInPack={-1}/>
             )
         } else {
-            allResult.filter((item) => item.ean === ean).map((newItem) => {
 
+            const eanRes = allResult.filter((item) => item.ean === ean)
+
+
+            eanRes.map((newItem) => {
+                const noEmpty = newItem.result.filter(i=>{
+                    return i.Item.priceForOne!==-1
+                })
+                const cheaper = noEmpty.length!==0? noEmpty.reduce((p,n)=> {
+                    return p.Item.priceForOne<n.Item.priceForOne? p : n
+                }) : undefined
                 newItem.result.map((newItem) => {
+
                     newComponentHashTable.set(newItem.hurtName,
                         <HurtResultForm
+                            isCheaper={cheaper?.Item.hurtName===newItem.hurtName}
                             name={hurtNames[newItem.hurtName]}
                             priceForPack={newItem.Item.priceForPack}
                             princeForOne={newItem.Item.priceForOne}
@@ -157,11 +148,19 @@ export default function MainSite() {
 
                 const newMap = new Map<hurtNames, ReactNode>()
                 let i = 0
+
+                const noEmpty = data.filter(i=>{
+                    return i.priceForOne!==-1
+                })
+                const cheaper = noEmpty.length!==0? noEmpty.reduce((p,n)=> {
+                    return p.priceForOne<n.priceForOne? p : n
+                }) : undefined
                 data.map((item) => {
                         setProdName(item.name)
                         i += 1
                         newMap.set(item.hurtName, (
                             <HurtResultForm
+                                isCheaper={cheaper!==undefined? cheaper.hurtName===item.hurtName: false}
                                 name={hurtNames[item.hurtName]}
                                 priceForPack={item.priceForPack}
                                 princeForOne={item.priceForOne}
@@ -173,6 +172,7 @@ export default function MainSite() {
                     setProdName("brak produktu")
                     newMap.set(hurtNames.none, (
                         <HurtResultForm
+                            isCheaper={false}
                             name={hurtNames[hurtNames.none]}
                             priceForPack={-1}
                             princeForOne={-1}
@@ -212,7 +212,6 @@ export default function MainSite() {
                 prodToSearch.map((item) => {
                     const ItemsMatchEan = data.get(item.Ean)
                     if (ItemsMatchEan) {
-                        console.log(ItemsMatchEan)
                         const optimalItem = ItemsMatchEan.reduce((prev, current) => {
                             // Check if the current price is -1; if so, skip it by returning prev
                             if (current.Item.priceForOne === -1) {
@@ -296,19 +295,19 @@ export default function MainSite() {
     }, []) //pobieranie wiadomości
 
 
-    {/*sx={{
-                width: '100%',
-                typography: 'body1',
-                padding: "30px 10px",
-                margin: "30px auto",
-                borderRadius: "20px",
-                backgroundColor: "#363636"
-            }}}*/}
-
     return (
         <>
             <Box>
-            <h1>Witaj w optimaHurt!{/*{localStorage.getItem("companyName")}*/}</h1>
+                <Box sx={{
+                    padding: "20px",
+                    display: "flex",
+                    justifyContent: "center"
+                }}>
+                <Box className="photo" component="img" src={"./assets/optimaLogo.png"} alt="Logo" style={{
+                    borderRadius: "50%",
+                    height: "200px"
+                }}/>
+                </Box>
             <p></p>
             <Box sx={{display: "flex", justifyContent: "space-around"}}>
                 <Box sx={{width: "45%", display: "flex", justifyContent: "center"}}>
@@ -351,13 +350,32 @@ export default function MainSite() {
                         <></>
                         :
                         <List component="nav"
-                              sx={{width: "45%", overflow: "scroll", maxHeight: "600px", overflowX: "hidden"}}>
+                              onKeyDown={(event) => {
+                                  event.preventDefault()
+                                  let newIndex=0
+                                  if (event.key === 'ArrowUp') {
+                                      newIndex = selectedIndex===0 ? 0 : selectedIndex - 1
+                                  } else if (event.key === 'ArrowDown') {
+                                      newIndex= selectedIndex===prodToSearch.length-1  ? prodToSearch.length-1 : selectedIndex + 1
+                                  }
+                                  setSelectedIndex(newIndex);
+                                  changeResultComp(prodToSearch[newIndex].Ean,prodToSearch[newIndex].Name)
+                              }}
+                              sx={{width: "45%",
+                                  overflow: "scroll",
+                                  maxHeight: "600px",
+                                  overflowX: "hidden",
+                                  border: "1px solid white",
+                                  borderRadius: "10px",
+                              }}
+                        >
                             {prodToSearch.map((item,index ) => {
                                 return (
                                     <ListItemButton
-                                        selected={item.Ean === selectedEan}
+                                        selected={selectedIndex === index}
                                         onClick={() => {
                                             changeResultComp(item.Ean, item.Name)
+                                            setSelectedIndex(index)
                                         }}>
                                         <ListItemAvatar>
                                             <Avatar>{index + 1}</Avatar>

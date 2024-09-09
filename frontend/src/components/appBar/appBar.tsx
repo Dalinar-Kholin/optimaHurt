@@ -14,23 +14,20 @@ export default function AppBarCustomed(/*{iconLink}:IAppBarCustomed*/){
 
     const navigate = useNavigate()
 
-    const pages : PATH[] = ["strona główna"/*,"płatności",  "cennik"*/,"ustawienia"] // tutaj jakby co dodać płatności i cennik
+    const pages : PATH[] = ["strona główna"/*,"płatności",  "cennik"*/,"ustawienia", "kontakt"] // tutaj jakby co dodać płatności i cennik
     return(
         <>
             <AppBar position="sticky" id={"appBarComp"}>
                 <Container maxWidth="xl">
                     <Toolbar disableGutters>
-                        {/*<Box className="photo" component="img" src={"./assets/nicea.jpeg"} alt="Logo" style={{
-        logoIcon:{
+                        {/*<Box className="photo" component="img" src={"./assets/optimaLogo.png"} alt="Logo" style={{
             borderRadius: '50%',
             height:'50px',
             width:'50px',
-        }
-
     }}
      onClick={()=>{
                             navigate('/main');
-                        }} /> */}{/*ICOM: miejsce na logo*/}
+                        }} />*/} {/*ICOM: miejsce na logo*/}
                         <Box sx={{  display: "flex", width: "100%", justifyContent : "space-between"}}>
                             <Box >
                                 {pages.map((page) => (

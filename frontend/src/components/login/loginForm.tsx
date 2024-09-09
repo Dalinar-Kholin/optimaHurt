@@ -33,8 +33,12 @@ export default function LoginForm(){
 
     const navigate = useNavigate()
 
-
-
+/*
+    const CustomTextField = styled(TextField)({
+        '& input:-webkit-autofill': {
+            '-webkit-box-shadow': '35 7a 38 1000px white inset !important',
+        },
+    });*/
 
     return (
         <>
@@ -97,7 +101,6 @@ export default function LoginForm(){
 
             }}>
                 <TextField
-                    autoComplete={"off"}
                     id="filled"
                     label="nazaw użytkownia"
                     placeholder="nazaw użytkownia"

@@ -13,6 +13,8 @@ import PaymentComp from "./components/payment/paymentComp.tsx";
 import ForgotPassword from "./components/forgotPassword/forgotPassword.tsx";
 import {freeBarAndCookiePath} from "./interfaces.ts";
 import ResetPassword from "./components/forgotPassword/resetPassword.tsx";
+import fetchWithAuth from "./typeScriptFunc/fetchWithAuth.ts";
+import ContactComp from "./components/contact/contact.tsx";
 
 
 const darkTheme = createTheme({
@@ -27,10 +29,36 @@ function CheckCookie() {
     return <></>
 }
 
+const sendRequest = async () => {
+    try {
+        const response = await fetch('/api/isAlive', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+    } catch (error) {
+        console.error('Error during fetch:', error);
+    }
+};
 
-
+const logout = () => {
+    fetchWithAuth("/api/logout").then(
+        ()=>{
+            console.log("logouted")
+        }
+    )
+}
 
 function App() {
+
+
+
+
+
     const [showAppBar, setShowAppBar] = useState<boolean>(false)
 
     const location = useLocation();
@@ -42,6 +70,21 @@ function App() {
             setShowAppBar(true);
         }
     }, [location.pathname]);
+
+    useEffect(() => {
+        const intervalId = setInterval(sendRequest, 240000);
+
+        // Wyczyszczenie interwału przy odmontowywaniu komponentu, aby nie występowało wielokrotne wysyłanie
+        return () => clearInterval(intervalId);
+    }, []);
+
+    useEffect(() => {
+        window.addEventListener('beforeunload', logout);
+
+        return () => {
+            window.removeEventListener('beforeunload', logout);
+        };
+    }, []);
 
     return (
         <div>
@@ -61,6 +104,7 @@ function App() {
                         <Route path={"/płatności"} element={<PaymentComp/>}/>
                         <Route path={"/forgotPassword"} element={<ForgotPassword/>}/>
                         <Route path={"/resetPassword"} element={<ResetPassword/>}/>
+                        <Route path={"/kontakt"} element={<ContactComp/>}/>
                     </Routes>
             </ThemeProvider>
         </div>
