@@ -18,7 +18,7 @@ import (
 
 func makeNewUser(dbUser user.DataBaseUserObject) (userInstance *user.User, availableHurts hurtownie.HurtName, resultsLogin []ChannelResponse) {
 	var hurtTab []hurtownie.IHurt
-
+	var validHurt []hurtownie.IHurt
 	var wg sync.WaitGroup
 
 	/*proxyURL, err := url.Parse("http://127.0.0.1:8000")
@@ -51,6 +51,7 @@ func makeNewUser(dbUser user.DataBaseUserObject) (userInstance *user.User, avail
 			res := (*hurt).TakeToken(creds.Login, creds.Password, client)
 			name := (*hurt).GetName()
 			if res {
+				validHurt = append(validHurt, *hurt)
 				ch <- ChannelResponse{
 					Hurt:    name,
 					Success: true,
@@ -69,15 +70,17 @@ func makeNewUser(dbUser user.DataBaseUserObject) (userInstance *user.User, avail
 	}()
 
 	res := make([]ChannelResponse, len(hurtTab))
+	valid := make([]ChannelResponse, 0)
 	i := 0
 	for x := range ch {
 		if x.Success {
 			availableHurts += x.Hurt
+			valid = append(valid, x)
 		}
 		res[i] = x
 		i++
 	}
-	userInstance = &user.User{Client: client, Hurts: hurtTab, Creds: dbUser.Creds}
+	userInstance = &user.User{Client: client, Hurts: validHurt, Creds: dbUser.Creds}
 	resultsLogin = res
 	return
 }
