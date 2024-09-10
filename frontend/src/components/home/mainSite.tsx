@@ -303,9 +303,8 @@ export default function MainSite() {
                     display: "flex",
                     justifyContent: "center"
                 }}>
-                <Box className="photo" component="img" src={"./assets/optimaLogo.png"} alt="Logo" style={{
-                    borderRadius: "50%",
-                    height: "200px"
+                <Box className="photo" component="img" src={"./assets/logo.png"} alt="Logo" style={{
+                    height: "150px"
                 }}/>
                 </Box>
             <p></p>
