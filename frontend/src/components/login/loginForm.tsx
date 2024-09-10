@@ -3,6 +3,7 @@ import {Alert, AlertTitle, Button, TextField} from "@mui/material";
 import "./login.css"
 import {useNavigate} from "react-router-dom";
 import {hurtNames} from "../../interfaces.ts";
+import Box from "@mui/material/Box";
 
 
 
@@ -42,7 +43,15 @@ export default function LoginForm(){
 
     return (
         <>
-            <h1>Logowanie</h1>
+            <Box sx={{
+                padding: "50px",
+                display: "flex",
+                justifyContent: "center"
+            }}>
+                <Box className="photo" component="img" src={"./assets/logo.png"} alt="Logo" style={{
+                    height: "300px"
+                }}/>
+            </Box>
             <form onSubmit={e => {
                 e.preventDefault()
                 // logowanie sie
