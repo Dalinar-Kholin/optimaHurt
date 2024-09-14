@@ -134,5 +134,3 @@ func main() {
 	r.Run("0.0.0.0:" + os.Getenv("PORT"))
 	return
 }
-
-// raz na dzień będziemy aktualizować całe dane dotyczące liczby zapytań
