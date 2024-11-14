@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"io"
@@ -113,7 +114,7 @@ func Login(c *gin.Context) {
 		})
 		return
 	}
-
+	fmt.Printf("hasło := %v\n", reqBody.Password)
 	if err := stringCheckers.CheckPassword(reqBody.Password); err != nil {
 		c.JSON(200, gin.H{
 			"error": err.Error(),

@@ -21,7 +21,9 @@ type IHurt interface {
 
 	SearchProduct(Ean string, client *http.Client) (interface{}, error)
 	SearchMany(list WishList, client *http.Client) ([]SearchManyProducts, error)
+
 	AddToCart(list WishList, client *http.Client) bool // tutaj będą potrzebne konkretne instancje itemów z konkretnych hurotwni, czy można dać typy generyczne - wyjebane, wszystkow zwracam na frontend i fajrant
+
 	GetName() HurtName
 }
 
@@ -38,3 +40,16 @@ type Items struct {
 	Amount   int      `json:"Amount"`
 	HurtName HurtName `json:"HurtName,omitempty"`
 }
+
+/*
+refaktoryzacja na poziomie, zmiany interfu pod posiadnie osobnych obiektów od
+
+ -- zarządzania hasłem
+ -- dodawania do koszyka
+ -- szukania produktu
+
+wszystko robione poprzez kompozycję
+
+inna sprawa, to rozbicie wszystkiego na mikroserwisy
+
+*/

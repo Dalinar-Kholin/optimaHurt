@@ -119,8 +119,10 @@ import (
 	fmt.Printf("body := %s\n", body)
 }
 */
+
 // potem automatycznie dołączam usera do requesta
 func main() {
+	// podzielić to na mikroserwisy
 	connection := endpoints.ConnectToDB(os.Getenv("CONNECTION_STRING"))
 	defer func() {
 		connection.Disconnect(constAndVars.ContextBackground)

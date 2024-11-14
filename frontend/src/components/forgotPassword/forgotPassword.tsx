@@ -25,16 +25,18 @@ export default function ForgotPassword(){
 
     return(
         <>
-            no niewątpliwie zapomniane
-            <TextField value={email} onChange={(e)=>{
-                setEmail(e.target.value)
-            }}
-                onKeyDown={(e)=>{
-                    if (e.key == "Enter"){
-                        handleClick()}}}/>
-            <Button onClick={handleClick}>zresetuj hasło</Button>
-            <p></p>
-            {message=="" ? <></> : <Alert>{message}</Alert>}
+            <div style={{display: "flex", flexDirection: "column"}}>
+                podaj swój email, wyślemy na niego link do resetowania hasła
+                <TextField value={email} onChange={(e)=>{
+                    setEmail(e.target.value)
+                }}
+                           onKeyDown={(e)=>{
+                               if (e.key == "Enter"){
+                                   handleClick()}}}/>
+                <Button onClick={handleClick}>zresetuj hasło</Button>
+                <p></p>
+                {message=="" ? <></> : <Alert>{message}</Alert>}
+            </div>
         </>
     )
 }

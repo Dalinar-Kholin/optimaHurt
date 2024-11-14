@@ -24,3 +24,5 @@ func AddHeaders(c *gin.Context) {
 		return
 	}
 }
+
+///wjlegfkjasgdlf,as
